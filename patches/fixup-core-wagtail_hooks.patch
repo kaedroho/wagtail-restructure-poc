@@ -1,0 +1,159 @@
+From 5f6d1efa2fd12d9ef9008a73bbff2e72b7ce9219 Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Wed, 13 Oct 2021 15:23:43 +0100
+Subject: [PATCH] Fixup core/wagtail_hooks
+
+---
+ wagtail/core/wagtail_hooks.py | 100 ++++++++++++++++------------------
+ 1 file changed, 46 insertions(+), 54 deletions(-)
+
+diff --git a/wagtail/core/wagtail_hooks.py b/wagtail/core/wagtail_hooks.py
+index a95f977613..eadde639d8 100644
+--- a/wagtail/core/wagtail_hooks.py
++++ b/wagtail/core/wagtail_hooks.py
+@@ -3,15 +3,44 @@ from django.contrib.auth.models import Permission
+ from django.contrib.auth.views import redirect_to_login
+ from django.db import models
+ from django.urls import reverse
++from django.utils.http import urlencode
+ from django.utils.text import capfirst
++from django.utils.translation import gettext
+ from django.utils.translation import gettext_lazy as _
+ from django.utils.translation import ngettext
++from draftjs_exporter.dom import DOM
+ 
++import wagtail.core.admin.rich_text.editors.draftail.features as draftail_features
++
++from wagtail import __version__
+ from wagtail.core import hooks
++from wagtail.core.admin.admin_url_finder import ModelAdminURLFinder, register_admin_url_finder
++from wagtail.core.admin.auth import user_has_any_page_permission
++from wagtail.core.admin.menu import MenuItem, SubmenuMenuItem, reports_menu, settings_menu
++from wagtail.core.admin.navigation import get_explorable_root_page
++from wagtail.core.admin.rich_text import (
++    HalloFormatPlugin, HalloHeadingPlugin, HalloListPlugin, HalloPlugin)
++from wagtail.core.admin.rich_text.converters.contentstate import link_entity
++from wagtail.core.admin.rich_text.converters.editor_html import (
++    LinkTypeRule, PageLinkHandler as ConverterPageLinkHandler, WhitelistRule)
++from wagtail.core.admin.rich_text.converters.html_to_contentstate import (
++    BlockElementHandler, ExternalLinkElementHandler, HorizontalRuleHandler,
++    InlineStyleElementHandler, ListElementHandler, ListItemElementHandler, PageLinkElementHandler)
++from wagtail.core.admin.search import SearchArea
++from wagtail.core.admin.site_summary import PagesSummaryItem
++from wagtail.core.admin.ui.sidebar import PageExplorerMenuItem as PageExplorerMenuItemComponent
++from wagtail.core.admin.ui.sidebar import SubMenuItem as SubMenuItemComponent
++from wagtail.core.admin.viewsets import viewsets
++from wagtail.core.admin.widgets import Button, ButtonWithDropdownFromHook, PageListingButton
+ from wagtail.core.log_actions import LogFormatter
+-from wagtail.core.models import ModelLogEntry, Page, PageLogEntry, PageViewRestriction
++from wagtail.core.models import (
++    Collection, ModelLogEntry, Page, PageLogEntry, PageViewRestriction, Task,
++    UserPagePermissionsProxy, Workflow)
++from wagtail.core.permissions import (
++    collection_permission_policy, task_permission_policy, workflow_permission_policy)
+ from wagtail.core.rich_text.pages import PageLinkHandler
+ from wagtail.core.utils import get_content_languages
++from wagtail.core.whitelist import allow_without_attributes, attribute_rule, check_url
+ 
+ 
+ def require_wagtail_login(next):
+@@ -41,24 +70,6 @@ def check_view_restrictions(page, request, serve_args, serve_kwargs):
+                 return require_wagtail_login(next=request.get_full_path())
+ 
+ 
+-@hooks.register('register_rich_text_features')
+-def register_core_features(features):
+-    features.default_features.append('hr')
+-
+-    features.default_features.append('link')
+-    features.register_link_type(PageLinkHandler)
+-
+-    features.default_features.append('bold')
+-
+-    features.default_features.append('italic')
+-
+-    features.default_features.extend(['h2', 'h3', 'h4'])
+-
+-    features.default_features.append('ol')
+-
+-    features.default_features.append('ul')
+-
+-
+ @hooks.register('register_permissions')
+ def register_collection_permissions():
+     return Permission.objects.filter(
+@@ -468,40 +479,6 @@ def register_workflow_log_actions(actions):
+                 }
+             except (KeyError, TypeError):
+                 return _('Workflow cancelled')
+-from django.conf import settings
+-from django.contrib.auth.models import Permission
+-from django.urls import reverse
+-from django.utils.http import urlencode
+-from django.utils.translation import gettext
+-from django.utils.translation import gettext_lazy as _
+-from draftjs_exporter.dom import DOM
+-
+-import wagtail.core.admin.rich_text.editors.draftail.features as draftail_features
+-
+-from wagtail import __version__
+-from wagtail.core.admin.admin_url_finder import ModelAdminURLFinder, register_admin_url_finder
+-from wagtail.core.admin.auth import user_has_any_page_permission
+-from wagtail.core.admin.menu import MenuItem, SubmenuMenuItem, reports_menu, settings_menu
+-from wagtail.core.admin.navigation import get_explorable_root_page
+-from wagtail.core.admin.rich_text import (
+-    HalloFormatPlugin, HalloHeadingPlugin, HalloListPlugin, HalloPlugin)
+-from wagtail.core.admin.rich_text.converters.contentstate import link_entity
+-from wagtail.core.admin.rich_text.converters.editor_html import (
+-    LinkTypeRule, PageLinkHandler, WhitelistRule)
+-from wagtail.core.admin.rich_text.converters.html_to_contentstate import (
+-    BlockElementHandler, ExternalLinkElementHandler, HorizontalRuleHandler,
+-    InlineStyleElementHandler, ListElementHandler, ListItemElementHandler, PageLinkElementHandler)
+-from wagtail.core.admin.search import SearchArea
+-from wagtail.core.admin.site_summary import PagesSummaryItem
+-from wagtail.core.admin.ui.sidebar import PageExplorerMenuItem as PageExplorerMenuItemComponent
+-from wagtail.core.admin.ui.sidebar import SubMenuItem as SubMenuItemComponent
+-from wagtail.core.admin.viewsets import viewsets
+-from wagtail.core.admin.widgets import Button, ButtonWithDropdownFromHook, PageListingButton
+-from wagtail.core import hooks
+-from wagtail.core.models import Collection, Page, Task, UserPagePermissionsProxy, Workflow
+-from wagtail.core.permissions import (
+-    collection_permission_policy, task_permission_policy, workflow_permission_policy)
+-from wagtail.core.whitelist import allow_without_attributes, attribute_rule, check_url
+ 
+ 
+ class ExplorerMenuItem(MenuItem):
+@@ -751,6 +728,21 @@ def register_viewsets_urls():
+ 
+ @hooks.register('register_rich_text_features')
+ def register_core_features(features):
++    features.default_features.append('hr')
++
++    features.default_features.append('link')
++    features.register_link_type(PageLinkHandler)
++
++    features.default_features.append('bold')
++
++    features.default_features.append('italic')
++
++    features.default_features.extend(['h2', 'h3', 'h4'])
++
++    features.default_features.append('ol')
++
++    features.default_features.append('ul')
++
+     # Hallo.js
+     features.register_editor_plugin(
+         'hallo', 'hr',
+@@ -776,7 +768,7 @@ def register_core_features(features):
+     )
+     features.register_converter_rule('editorhtml', 'link', [
+         WhitelistRule('a', attribute_rule({'href': check_url})),
+-        LinkTypeRule('page', PageLinkHandler),
++        LinkTypeRule('page', ConverterPageLinkHandler),
+     ])
+ 
+     features.register_editor_plugin(
+-- 
+2.27.0
+

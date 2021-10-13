@@ -1,0 +1,23 @@
+diff --git a/wagtail/__init__.py b/wagtail/__init__.py
+index ac6ed2c6e..f067b3871 100644
+--- a/wagtail/__init__.py
++++ b/wagtail/__init__.py
+@@ -13,3 +13,17 @@ __version__ = get_version(VERSION)
+
+ # Required for npm package for frontend
+ __semver__ = get_semver_version(VERSION)
++
++
++default_app_config = 'wagtail.core.apps.WagtailCoreAppConfig'
++
++
++def setup():
++    import warnings
++
++    from wagtail.utils.deprecation import removed_in_next_version_warning
++
++    warnings.simplefilter("default", removed_in_next_version_warning)
++
++
++setup()
+

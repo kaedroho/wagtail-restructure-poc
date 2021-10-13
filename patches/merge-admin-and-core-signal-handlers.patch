@@ -1,0 +1,87 @@
+From bb6b51578d3653ff9daee7b331098fc925b042dc Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Wed, 13 Oct 2021 15:02:28 +0100
+Subject: [PATCH] Merge admin and core signal handlers
+
+---
+ wagtail/core/admin/apps.py            |  4 ----
+ wagtail/core/admin/signal_handlers.py | 20 --------------------
+ wagtail/core/signal_handlers.py       | 19 ++++++++++++++++++-
+ 3 files changed, 18 insertions(+), 25 deletions(-)
+ delete mode 100644 wagtail/core/admin/signal_handlers.py
+
+diff --git a/wagtail/core/admin/apps.py b/wagtail/core/admin/apps.py
+index df943c2767..80c6e4fbeb 100644
+--- a/wagtail/core/admin/apps.py
++++ b/wagtail/core/admin/apps.py
+@@ -9,7 +9,3 @@ class WagtailAdminAppConfig(AppConfig):
+     label = 'wagtailadmin'
+     verbose_name = _("Wagtail admin")
+     default_auto_field = 'django.db.models.AutoField'
+-
+-    def ready(self):
+-        from wagtail.core.admin.signal_handlers import register_signal_handlers
+-        register_signal_handlers()
+diff --git a/wagtail/core/admin/signal_handlers.py b/wagtail/core/admin/signal_handlers.py
+deleted file mode 100644
+index 7ee5584f56..0000000000
+--- a/wagtail/core/admin/signal_handlers.py
++++ /dev/null
+@@ -1,20 +0,0 @@
+-from wagtail.core.admin.mail import (
+-    GroupApprovalTaskStateSubmissionEmailNotifier, WorkflowStateApprovalEmailNotifier,
+-    WorkflowStateRejectionEmailNotifier, WorkflowStateSubmissionEmailNotifier)
+-from wagtail.core.models import TaskState, WorkflowState
+-from wagtail.core.signals import (
+-    task_submitted, workflow_approved, workflow_rejected, workflow_submitted)
+-
+-
+-task_submission_email_notifier = GroupApprovalTaskStateSubmissionEmailNotifier()
+-workflow_submission_email_notifier = WorkflowStateSubmissionEmailNotifier()
+-workflow_approval_email_notifier = WorkflowStateApprovalEmailNotifier()
+-workflow_rejection_email_notifier = WorkflowStateRejectionEmailNotifier()
+-
+-
+-def register_signal_handlers():
+-    task_submitted.connect(task_submission_email_notifier, sender=TaskState, dispatch_uid='group_approval_task_submitted_email_notification')
+-
+-    workflow_submitted.connect(workflow_submission_email_notifier, sender=WorkflowState, dispatch_uid='workflow_state_submitted_email_notification')
+-    workflow_rejected.connect(workflow_rejection_email_notifier, sender=WorkflowState, dispatch_uid='workflow_state_rejected_email_notification')
+-    workflow_approved.connect(workflow_approval_email_notifier, sender=WorkflowState, dispatch_uid='workflow_state_approved_email_notification')
+diff --git a/wagtail/core/signal_handlers.py b/wagtail/core/signal_handlers.py
+index d8f7c94d4f..986420855f 100644
+--- a/wagtail/core/signal_handlers.py
++++ b/wagtail/core/signal_handlers.py
+@@ -3,7 +3,18 @@ import logging
+ from django.core.cache import cache
+ from django.db.models.signals import post_delete, post_save, pre_delete
+
+-from wagtail.core.models import Page, Site
++from wagtail.core.admin.mail import (
++    GroupApprovalTaskStateSubmissionEmailNotifier, WorkflowStateApprovalEmailNotifier,
++    WorkflowStateRejectionEmailNotifier, WorkflowStateSubmissionEmailNotifier)
++from wagtail.core.models import Page, Site, TaskState, WorkflowState
++from wagtail.core.signals import (
++    task_submitted, workflow_approved, workflow_rejected, workflow_submitted)
++
++
++task_submission_email_notifier = GroupApprovalTaskStateSubmissionEmailNotifier()
++workflow_submission_email_notifier = WorkflowStateSubmissionEmailNotifier()
++workflow_approval_email_notifier = WorkflowStateApprovalEmailNotifier()
++workflow_rejection_email_notifier = WorkflowStateRejectionEmailNotifier()
+
+
+ logger = logging.getLogger('wagtail.core')
+@@ -35,3 +46,9 @@ def register_signal_handlers():
+
+     pre_delete.connect(pre_delete_page_unpublish, sender=Page)
+     post_delete.connect(post_delete_page_log_deletion, sender=Page)
++
++    task_submitted.connect(task_submission_email_notifier, sender=TaskState, dispatch_uid='group_approval_task_submitted_email_notification')
++
++    workflow_submitted.connect(workflow_submission_email_notifier, sender=WorkflowState, dispatch_uid='workflow_state_submitted_email_notification')
++    workflow_rejected.connect(workflow_rejection_email_notifier, sender=WorkflowState, dispatch_uid='workflow_state_rejected_email_notification')
++    workflow_approved.connect(workflow_approval_email_notifier, sender=WorkflowState, dispatch_uid='workflow_state_approved_email_notification')
+--
+2.27.0
+
