@@ -81,13 +81,17 @@ django-admin makemigrations --pythonpath=. --settings=wagtail.test.settings
 git add .
 git commit -m "Move admin models into core"
 
+# TOOD: This migration doesn't copy the wagtailadmin.can_access_permission. It just creates a new one
+cp ../patches/0070_create_admin_access_permissions.py wagtail/migrations/0070_create_admin_access_permissions.py
 # Rename all occurances of wagtailadmin.can_access_admin permission
 find . -name '*.py' -exec sed -i 's/wagtailadmin\.access_admin/wagtailcore\.access_admin/g' {} \;
-find . -name '*.py' -exec sed -i "s/app_label='wagtailadmin', codename='access_admin'/app_label='wagtailcore', codename='access_admin'/g" {} \;
-find . -name '*.py' -exec sed -i "s/codename='access_admin', app_label='wagtailadmin'/codename='access_admin', app_label='wagtailcore'/g" {} \;
+find . -name '*.py' -exec sed -i "s/content_type__app_label='wagtailadmin'/content_type__app_label='wagtailcore'/g" {} \;
 find . -name '*.json' -exec sed -i 's/\["access_admin", "wagtailadmin", "admin"\]/\["access_admin", "wagtailcore", "admin"\]/g' {} \;
+sed -i "s/app_label='wagtailadmin',/app_label='wagtailcore',/g" wagtail/admin/tests/pages/test_revisions.py
+sed -i "s/app_label='wagtailadmin',/app_label='wagtailcore',/g" wagtail/contrib/settings/tests/test_admin.py
+
 git add .
-git commit -m "Rename all occurances of wagtailadmin.can_access_admin permission"
+git commit -m "Add wagtailcore.can_access_admin permisison"
 
 mv wagtail/admin/templates/* wagtail/templates
 git add .
@@ -97,6 +101,9 @@ mv wagtail/admin/static_src wagtail/static_src
 sed -i 's/wagtail\/admin\/static_src/wagtail\/static_src/g' package.json
 sed -i 's/wagtail\/wagtailadmin\/static_src/wagtail\/static_src/g' MANIFEST.in
 sed -i "s/new App(path.join('wagtail', 'admin'), {'appName': 'wagtailadmin'}),/new App('wagtail', {'appName': 'wagtailadmin'}),/g" gulpfile.js/config.js
+sed -i 's/wagtail\/wagtailadmin\/static\//wagtail\/static\//g' wagtail/utils/setup.py
+# TODO: Move this check into core instead
+sed -i "s/os.path.dirname(__file__), 'static', 'wagtailadmin', 'css', 'normalize.css'/os.path.dirname(os.path.dirname(__file__)), 'static', 'wagtailadmin', 'css', 'normalize.css'/g" wagtail/admin/checks.py
 find ./wagtail/static_src -name '*.scss' -exec sed -i "s/\/..\/client\//\/client\//g" {} \;
 find . -name '*.js' -exec sed -i 's/wagtail\/admin\/static_src/wagtail\/static_src/g' {} \;
 
