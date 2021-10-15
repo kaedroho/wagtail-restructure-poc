@@ -1,4 +1,4 @@
-From e427424e01797831162e3290ad5773273d2811af Mon Sep 17 00:00:00 2001
+From ea95eb95931b3d3e395bdb4b24f13e158b883e94 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Fri, 1 Oct 2021 15:31:09 +0100
 Subject: [PATCH 1/4] Create a UserProfile model in wagtailcore
@@ -56,7 +56,7 @@ index 00000000000..9c62e681ffb
 +        ),
 +    ]
 diff --git a/wagtail/core/models/__init__.py b/wagtail/core/models/__init__.py
-index 5b14a7f5d5c..497db0f14ba 100644
+index f441d436701..d465132fe17 100644
 --- a/wagtail/core/models/__init__.py
 +++ b/wagtail/core/models/__init__.py
 @@ -71,6 +71,7 @@
@@ -197,7 +197,7 @@ index 4e4929834c6..fa4ad26310c 100644
  
      submitted_notifications = models.BooleanField(
 
-From 7574b360cb0ab701d9165087e7b3c5920ef3bc29 Mon Sep 17 00:00:00 2001
+From 4d42832c07e113c9e0c1cf8bdfb9b0703a6dcb08 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Fri, 1 Oct 2021 15:31:30 +0100
 Subject: [PATCH 2/4] Add a migration to migrate from wagtailusers
@@ -271,7 +271,7 @@ index 230e97fc78c..3c9b095bdea 100644
          migrations.AlterField(
              model_name='userprofile',
 
-From aa0903881d45b4f011269e66d02e35d693c51d9a Mon Sep 17 00:00:00 2001
+From 4f29680c521c364c46a274ce29e523fe4d8ec117 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Fri, 1 Oct 2021 15:36:58 +0100
 Subject: [PATCH 3/4] Switch to new UserProfile model
@@ -383,7 +383,7 @@ index a77d1b123af..3aba28b171d 100644
  from .utils import AdminAPITestCase
  
 diff --git a/wagtail/admin/tests/pages/test_edit_page.py b/wagtail/admin/tests/pages/test_edit_page.py
-index af4e9ad49c0..9f47e2c8e0a 100644
+index 7eab6481da2..275ab2e046b 100644
 --- a/wagtail/admin/tests/pages/test_edit_page.py
 +++ b/wagtail/admin/tests/pages/test_edit_page.py
 @@ -18,7 +18,7 @@
@@ -504,7 +504,7 @@ index 683765623a7..613300ccf05 100644
          ),
      ]
 diff --git a/wagtail/users/tests.py b/wagtail/users/tests.py
-index 7d33982669e..8ffd0ad88ae 100644
+index af74575fc91..843b11de110 100644
 --- a/wagtail/users/tests.py
 +++ b/wagtail/users/tests.py
 @@ -15,10 +15,10 @@
@@ -521,7 +521,7 @@ index 7d33982669e..8ffd0ad88ae 100644
  from wagtail.users.views.users import get_user_creation_form, get_user_edit_form
  from wagtail.users.wagtail_hooks import get_group_viewset_cls
 
-From ab8d90e9b027238988f9dcaf05c8597ab6c3c185 Mon Sep 17 00:00:00 2001
+From a5f321502ff434fe62f9f78a109d5dcc6a402a03 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Fri, 1 Oct 2021 15:35:38 +0100
 Subject: [PATCH 4/4] Delete wagtailusers UserProfile model

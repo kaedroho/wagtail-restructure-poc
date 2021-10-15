@@ -6,7 +6,7 @@ git clone git@github.com:wagtail/wagtail.git
 
 cd wagtail
 
-git checkout 6e90c877ecd4e3029a8a2b5aa376a98e69190c73 -b restructure
+git checkout b3366749d9b068ea1bc4ae01495e9d1b77ae2333 -b restructure
 
 git apply --reject --whitespace=fix ../patches/pr7277.patch
 git add .

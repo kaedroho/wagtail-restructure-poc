@@ -1,4 +1,4 @@
-From cad5243a7d84a394aebf394c8d6fc4d8f5509775 Mon Sep 17 00:00:00 2001
+From 2eaaa2eaab2c272544ad480eca124688462b08aa Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Tue, 22 Jun 2021 15:56:24 +0100
 Subject: [PATCH 1/6] Add Query/QueryDailyHits models into search promotions
@@ -176,7 +176,7 @@ index 6602010945b..49bd5d4be26 100644
      sort_order = models.IntegerField(null=True, blank=True, editable=False)
      description = models.TextField(verbose_name=_('description'), blank=True)
 
-From ff40b47d4de677f8c915d956c940e03ddb80a9f9 Mon Sep 17 00:00:00 2001
+From 002db7c13c39dca618bfd88ed89d284e9f60cba2 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Tue, 22 Jun 2021 16:35:33 +0100
 Subject: [PATCH 2/6] Add migration to copy queries from search to
@@ -209,7 +209,7 @@ index 00000000000..78ebaecc1ea
 +        migrations.RunSQL('INSERT INTO wagtailsearchpromotions_querydailyhits SELECT * FROM wagtailsearch_querydailyhits', ''),
 +    ]
 
-From 019427427e7a78f6528f439a0a715f3674732997 Mon Sep 17 00:00:00 2001
+From 5c884431f3740f2e978466d1b87bf2b4aa263d11 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Tue, 22 Jun 2021 16:38:07 +0100
 Subject: [PATCH 3/6] Switch to new Query model
@@ -421,7 +421,7 @@ index 38eba80aa8b..7cebce06db0 100644
  class TestQueryChooserView(TestCase, WagtailTestUtils):
      def setUp(self):
 
-From 0d3d2781d4219593a6a9ad93a4b2d3e34c4c4e9f Mon Sep 17 00:00:00 2001
+From 607f3541f69238b23aed20a8528ccf17fc431233 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Tue, 22 Jun 2021 16:39:48 +0100
 Subject: [PATCH 4/6] Move QueryForm into searchpromotions
@@ -523,7 +523,7 @@ index 88b9581d45e..2b6e89953b0 100644
 +
 +sys.modules[__name__] = MovedDefinitionHandler(sys.modules[__name__], MOVED_DEFINITIONS, RemovedInWagtail217Warning)
 
-From f4a55c3265fe6e39f6a39fafd07687a95b8bf4f5 Mon Sep 17 00:00:00 2001
+From 0b1ac6ffc53fa599ffecd0f087a71b4f51b28c24 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Tue, 24 Aug 2021 11:28:01 +0100
 Subject: [PATCH 5/6] Add deprecation warning for wagtailsearch.Query.add_hit
@@ -564,7 +564,7 @@ index 76d78ebb46c..1990f7ddd3a 100644
              date = timezone.now().date()
          daily_hits, created = QueryDailyHits.objects.get_or_create(
 
-From 28186d6a0418a2bb70aadc03da9947c4aaa9f8ac Mon Sep 17 00:00:00 2001
+From ae7a010b1f169d4d677e01d17ba9105a1097c7b7 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Tue, 24 Aug 2021 12:09:15 +0100
 Subject: [PATCH 6/6] Add management command for copying old
