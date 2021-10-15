@@ -1,0 +1,25 @@
+From dadc26bc044fe0f84fdad18c7afe77c50c4f1c6e Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Fri, 15 Oct 2021 12:09:26 +0100
+Subject: [PATCH] Concatenate core init
+
+---
+ wagtail/__init__.py | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/wagtail/__init__.py b/wagtail/__init__.py
+index 20dc34a50..a8cdcb8d9 100644
+--- a/wagtail/__init__.py
++++ b/wagtail/__init__.py
+@@ -13,8 +13,6 @@ __version__ = get_version(VERSION)
+ 
+ # Required for npm package for frontend
+ __semver__ = get_semver_version(VERSION)
+-# Imported for historical reasons
+-from wagtail import __semver__, __version__  # noqa
+ 
+ 
+ default_app_config = 'wagtail.core.apps.WagtailCoreAppConfig'
+-- 
+2.27.0
+
