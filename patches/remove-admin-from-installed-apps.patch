@@ -1,0 +1,103 @@
+From a9a8b2bd6c84d2c136e98111b9e4f0f9a4c0e667 Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Fri, 15 Oct 2021 16:35:18 +0100
+Subject: [PATCH] No longer necessary to add wagtail.admin to INSTALLED_APPS
+
+---
+ docs/advanced_topics/add_to_django_project.rst         | 5 -----
+ docs/advanced_topics/customisation/admin_templates.rst | 3 +--
+ docs/getting_started/integrating_into_django.md        | 1 -
+ wagtail/project_template/project_name/settings/base.py | 1 -
+ wagtail/test/settings.py                               | 1 -
+ 5 files changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/docs/advanced_topics/add_to_django_project.rst b/docs/advanced_topics/add_to_django_project.rst
+index fe7d014e7..cff2ec448 100644
+--- a/docs/advanced_topics/add_to_django_project.rst
++++ b/docs/advanced_topics/add_to_django_project.rst
+@@ -64,7 +64,6 @@ Apps (``settings.py``)
+     'wagtail.documents',
+     'wagtail.images',
+     'wagtail.search',
+-    'wagtail.admin',
+     'wagtail',
+ 
+     'taggit',
+@@ -86,9 +85,6 @@ Wagtail Apps
+ ``wagtail``
+   The core functionality of Wagtail, such as the ``Page`` class, the Wagtail tree, and model fields.
+ 
+-``wagtail.admin``
+-  The administration interface for Wagtail, including page edit handlers.
+-
+ ``wagtail.documents``
+   The Wagtail document content type.
+ 
+@@ -200,7 +196,6 @@ These two files should reside in your project directory (``myproject/myproject/`
+       'wagtail.documents',
+       'wagtail.images',
+       'wagtail.search',
+-      'wagtail.admin',
+       'wagtail',
+ 
+       'taggit',
+diff --git a/docs/advanced_topics/customisation/admin_templates.rst b/docs/advanced_topics/customisation/admin_templates.rst
+index b38c0e242..07b4abc49 100644
+--- a/docs/advanced_topics/customisation/admin_templates.rst
++++ b/docs/advanced_topics/customisation/admin_templates.rst
+@@ -4,7 +4,7 @@ Customising admin templates
+ 
+ In your projects with Wagtail, you may wish to replace elements such as the Wagtail logo within the admin interface with your own branding. This can be done through Django's template inheritance mechanism.
+ 
+-You need to create a ``templates/wagtailadmin/`` folder within one of your apps - this may be an existing one, or a new one created for this purpose, for example, ``dashboard``. This app must be registered in ``INSTALLED_APPS`` before ``wagtail.admin``:
++You need to create a ``templates/wagtailadmin/`` folder within one of your apps - this may be an existing one, or a new one created for this purpose, for example, ``dashboard``. This app must be registered in ``INSTALLED_APPS`` before ``wagtail``:
+ 
+ .. code-block:: python
+ 
+@@ -14,7 +14,6 @@ You need to create a ``templates/wagtailadmin/`` folder within one of your apps
+         'dashboard',
+ 
+         'wagtail',
+-        'wagtail.admin',
+ 
+         # ...
+     )
+diff --git a/docs/getting_started/integrating_into_django.md b/docs/getting_started/integrating_into_django.md
+index de09a2dca..c8e123521 100644
+--- a/docs/getting_started/integrating_into_django.md
++++ b/docs/getting_started/integrating_into_django.md
+@@ -27,7 +27,6 @@ In your settings file, add the following apps to `INSTALLED_APPS`:
+ 'wagtail.documents',
+ 'wagtail.images',
+ 'wagtail.search',
+-'wagtail.admin',
+ 'wagtail',
+ 
+ 'modelcluster',
+diff --git a/wagtail/project_template/project_name/settings/base.py b/wagtail/project_template/project_name/settings/base.py
+index 348d4f709..2b74999ea 100644
+--- a/wagtail/project_template/project_name/settings/base.py
++++ b/wagtail/project_template/project_name/settings/base.py
+@@ -36,7 +36,6 @@ INSTALLED_APPS = [
+     'wagtail.documents',
+     'wagtail.images',
+     'wagtail.search',
+-    'wagtail.admin',
+     'wagtail',
+ 
+     'modelcluster',
+diff --git a/wagtail/test/settings.py b/wagtail/test/settings.py
+index 819a37b85..a68695c7f 100644
+--- a/wagtail/test/settings.py
++++ b/wagtail/test/settings.py
+@@ -139,7 +139,6 @@ INSTALLED_APPS = [
+     'wagtail.users',
+     'wagtail.snippets',
+     'wagtail.documents',
+-    'wagtail.admin',
+     'wagtail.api.v2',
+     'wagtail',
+ 
+-- 
+2.27.0
+

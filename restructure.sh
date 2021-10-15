@@ -116,3 +116,11 @@ sed -i 's/from .templatetags.wagtailuserbar import wagtailuserbar/from wagtail.a
 roper move-module --source wagtail/admin/templatetags/wagtailuserbar.py --target wagtail/templatetags --do
 git add .
 git commit -m "Move admin templatetags into core"
+
+git apply --reject --whitespace=fix ../patches/call-admin-signal-handlers-and-hooks-from-core.patch
+git add .
+git commit -m "Call admin signal handlers and hooks from core"
+
+git apply --reject --whitespace=fix ../patches/remove-admin-from-installed-apps.patch
+git add .
+git commit -m "No longer necessary to add 'wagtail.admin' to INSTALLED_APPS"

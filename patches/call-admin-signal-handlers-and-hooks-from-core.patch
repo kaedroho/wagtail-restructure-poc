@@ -1,0 +1,51 @@
+From a2b42d67710db0e8002a86e414a0b5b466796e63 Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Fri, 15 Oct 2021 16:21:18 +0100
+Subject: [PATCH] Call admin signal handlers and hooks from core
+
+---
+ wagtail/admin/apps.py    | 4 ----
+ wagtail/apps.py          | 3 +++
+ wagtail/wagtail_hooks.py | 2 ++
+ 3 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/wagtail/admin/apps.py b/wagtail/admin/apps.py
+index e89deaa60..43c05ffb9 100644
+--- a/wagtail/admin/apps.py
++++ b/wagtail/admin/apps.py
+@@ -9,7 +9,3 @@ class WagtailAdminAppConfig(AppConfig):
+     label = 'wagtailadmin'
+     verbose_name = _("Wagtail admin")
+     default_auto_field = 'django.db.models.AutoField'
+-
+-    def ready(self):
+-        from wagtail.admin.signal_handlers import register_signal_handlers
+-        register_signal_handlers()
+diff --git a/wagtail/apps.py b/wagtail/apps.py
+index d5084143e..2c63e5812 100644
+--- a/wagtail/apps.py
++++ b/wagtail/apps.py
+@@ -12,4 +12,7 @@ class WagtailCoreAppConfig(AppConfig):
+         from wagtail.signal_handlers import register_signal_handlers
+         register_signal_handlers()
+ 
++        from wagtail.admin.signal_handlers import register_signal_handlers
++        register_signal_handlers()
++
+         from wagtail import widget_adapters  # noqa
+diff --git a/wagtail/wagtail_hooks.py b/wagtail/wagtail_hooks.py
+index 4188aa7f8..c2e2afc2c 100644
+--- a/wagtail/wagtail_hooks.py
++++ b/wagtail/wagtail_hooks.py
+@@ -13,6 +13,8 @@ from wagtail.models import ModelLogEntry, Page, PageLogEntry, PageViewRestrictio
+ from wagtail.rich_text.pages import PageLinkHandler
+ from wagtail.coreutils import get_content_languages
+ 
++from .admin import wagtail_hooks  # noqa
++
+ 
+ def require_wagtail_login(next):
+     login_url = getattr(settings, 'WAGTAIL_FRONTEND_LOGIN_URL', reverse('wagtailcore_login'))
+-- 
+2.27.0
+
