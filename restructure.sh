@@ -73,3 +73,10 @@ find . -name '*.md' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_han
 
 git add .
 git commit -m "Move edit handlers to wagtail.edit_handlers"
+
+roper move-module --source wagtail/admin/models.py --target wagtail/models --do
+roper rename-module --module wagtail/models/models.py --to-name admin --do
+# Note --pythonpath=. stops Python from looking for pip-installed Wagtail
+django-admin makemigrations --pythonpath=. --settings=wagtail.test.settings
+git add .
+git commit -m "Move admin models into core"
