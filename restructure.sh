@@ -80,3 +80,32 @@ roper rename-module --module wagtail/models/models.py --to-name admin --do
 django-admin makemigrations --pythonpath=. --settings=wagtail.test.settings
 git add .
 git commit -m "Move admin models into core"
+
+# Rename all occurances of wagtailadmin.can_access_admin permission
+find . -name '*.py' -exec sed -i 's/wagtailadmin\.access_admin/wagtailcore\.access_admin/g' {} \;
+find . -name '*.py' -exec sed -i "s/app_label='wagtailadmin', codename='access_admin'/app_label='wagtailcore', codename='access_admin'/g" {} \;
+find . -name '*.py' -exec sed -i "s/codename='access_admin', app_label='wagtailadmin'/codename='access_admin', app_label='wagtailcore'/g" {} \;
+find . -name '*.json' -exec sed -i 's/\["access_admin", "wagtailadmin", "admin"\]/\["access_admin", "wagtailcore", "admin"\]/g' {} \;
+git add .
+git commit -m "Rename all occurances of wagtailadmin.can_access_admin permission"
+
+mv wagtail/admin/templates/* wagtail/templates
+git add .
+git commit -m "Move admin templates into core"
+
+mv wagtail/admin/static_src wagtail/static_src
+sed -i 's/wagtail\/admin\/static_src/wagtail\/static_src/g' package.json
+sed -i 's/wagtail\/wagtailadmin\/static_src/wagtail\/static_src/g' MANIFEST.in
+sed -i "s/new App(path.join('wagtail', 'admin'), {'appName': 'wagtailadmin'}),/new App('wagtail', {'appName': 'wagtailadmin'}),/g" gulpfile.js/config.js
+find ./wagtail/static_src -name '*.scss' -exec sed -i "s/\/..\/client\//\/client\//g" {} \;
+find . -name '*.js' -exec sed -i 's/wagtail\/admin\/static_src/wagtail\/static_src/g' {} \;
+
+git add .
+git commit -m "Move admin static into core"
+
+roper move-module --source wagtail/admin/templatetags/wagtailadmin_tags.py --target wagtail/templatetags --do
+# Roper crashes if we don't make this particular import absolute
+sed -i 's/from .templatetags.wagtailuserbar import wagtailuserbar/from wagtail.admin.templatetags.wagtailuserbar import wagtailuserbar/g' wagtail/admin/jinja2tags.py
+roper move-module --source wagtail/admin/templatetags/wagtailuserbar.py --target wagtail/templatetags --do
+git add .
+git commit -m "Move admin templatetags into core"
