@@ -1,0 +1,58 @@
+From 0c0d79a945e82dd557e221ff2c83298988b55c9d Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Sat, 16 Oct 2021 10:13:57 +0100
+Subject: [PATCH 3/3] Fixup pages models
+
+---
+ wagtail/models/pages.py | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/wagtail/models/pages.py b/wagtail/models/pages.py
+index b50e1cd87..aad762f37 100644
+--- a/wagtail/models/pages.py
++++ b/wagtail/models/pages.py
+@@ -57,7 +57,7 @@ from .sites import Site
+ from .view_restrictions import BaseViewRestriction
+ from .commenting import COMMENTS_RELATION_NAME, Comment
+ 
+-
++from wagtail.search import index
+ 
+ 
+ logger = logging.getLogger('wagtail')
+@@ -2326,6 +2326,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+     @property
+     def workflow_in_progress(self):
+         """Returns True if a workflow is in progress on the current page, otherwise False"""
++        from .workflows import WorkflowState
++
+         if not getattr(settings, 'WAGTAIL_WORKFLOW_ENABLED', True):
+             return False
+ 
+@@ -2342,6 +2344,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+     @property
+     def current_workflow_state(self):
+         """Returns the in progress or needs changes workflow state on this page, if it exists"""
++        from .workflows import WorkflowState
++
+         if not getattr(settings, 'WAGTAIL_WORKFLOW_ENABLED', True):
+             return None
+ 
+@@ -2361,6 +2365,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+     @property
+     def current_workflow_task_state(self):
+         """Returns (specific class of) the current task state of the workflow on this page, if it exists"""
++        from .workflows import WorkflowState
++
+         current_workflow_state = self.current_workflow_state
+         if current_workflow_state and current_workflow_state.status == WorkflowState.STATUS_IN_PROGRESS and current_workflow_state.current_task_state:
+             return current_workflow_state.current_task_state.specific
+@@ -3176,5 +3182,3 @@ class WorkflowPage(models.Model):
+     class Meta:
+         verbose_name = _('workflow page')
+         verbose_name_plural = _('workflow pages')
+-
+-
+-- 
+2.27.0
+

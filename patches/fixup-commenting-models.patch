@@ -1,0 +1,50 @@
+From 28a9117906fbc53826e3414de68a5f6388c2074c Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Sat, 16 Oct 2021 10:12:05 +0100
+Subject: [PATCH 1/3] Fixup commenting models
+
+---
+ wagtail/models/commenting.py | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/wagtail/models/commenting.py b/wagtail/models/commenting.py
+index aa4aa0747..b28d147cb 100644
+--- a/wagtail/models/commenting.py
++++ b/wagtail/models/commenting.py
+@@ -1,6 +1,5 @@
+ from django.conf import settings
+ from django.db import models
+-from wagtail.models import Page, COMMENTS_RELATION_NAME, PageRevision
+ from django.utils.translation import gettext_lazy as _
+ from modelcluster.fields import ParentalKey
+ from wagtail.log_actions import log
+@@ -14,7 +13,7 @@ class Comment(ClusterableModel):
+     """
+     A comment on a field, or a field within a streamfield block
+     """
+-    page = ParentalKey(Page, on_delete=models.CASCADE, related_name=COMMENTS_RELATION_NAME)
++    page = ParentalKey('Page', on_delete=models.CASCADE, related_name=COMMENTS_RELATION_NAME)
+     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name=COMMENTS_RELATION_NAME)
+     text = models.TextField()
+ 
+@@ -28,7 +27,7 @@ class Comment(ClusterableModel):
+     created_at = models.DateTimeField(auto_now_add=True)
+     updated_at = models.DateTimeField(auto_now=True)
+ 
+-    revision_created = models.ForeignKey(PageRevision, on_delete=models.CASCADE, related_name='created_comments', null=True, blank=True)
++    revision_created = models.ForeignKey('PageRevision', on_delete=models.CASCADE, related_name='created_comments', null=True, blank=True)
+ 
+     resolved_at = models.DateTimeField(null=True, blank=True)
+     resolved_by = models.ForeignKey(
+@@ -135,7 +134,7 @@ class CommentReply(models.Model):
+ 
+ class PageSubscription(models.Model):
+     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='page_subscriptions')
+-    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='subscribers')
++    page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='subscribers')
+ 
+     comment_notifications = models.BooleanField()
+ 
+-- 
+2.27.0
+
