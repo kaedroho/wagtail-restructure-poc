@@ -1,0 +1,398 @@
+From 5f543bf2f4e290056c40afbe66aa29a46a37d34f Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Sat, 16 Oct 2021 12:04:52 +0100
+Subject: [PATCH] Fixup edit handlers/models/admin forms
+
+---
+ wagtail/admin/checks.py                   |  2 +-
+ wagtail/admin/tests/test_edit_handlers.py |  3 +-
+ wagtail/admin/widgets/chooser.py          |  7 +-
+ wagtail/edit_handlers.py                  | 89 ++---------------------
+ wagtail/models/admin.py                   | 10 +--
+ wagtail/models/logging.py                 |  7 +-
+ wagtail/models/pages.py                   | 78 +++++++++++++++++++-
+ 7 files changed, 97 insertions(+), 99 deletions(-)
+
+diff --git a/wagtail/admin/checks.py b/wagtail/admin/checks.py
+index e37ee8acc..6f6ce0132 100644
+--- a/wagtail/admin/checks.py
++++ b/wagtail/admin/checks.py
+@@ -39,7 +39,7 @@ def base_form_class_check(app_configs, **kwargs):
+     errors = []
+ 
+     for cls in get_page_models():
+-        if not issubclass(cls.base_form_class, WagtailAdminPageForm):
++        if not (cls.base_form_class is None or issubclass(cls.base_form_class, WagtailAdminPageForm)):
+             errors.append(Error(
+                 "{}.base_form_class does not extend WagtailAdminPageForm".format(
+                     cls.__name__),
+diff --git a/wagtail/admin/tests/test_edit_handlers.py b/wagtail/admin/tests/test_edit_handlers.py
+index 0217a61d3..e0668ffda 100644
+--- a/wagtail/admin/tests/test_edit_handlers.py
++++ b/wagtail/admin/tests/test_edit_handlers.py
+@@ -13,7 +13,8 @@ from django.utils.html import json_script
+ from freezegun import freeze_time
+ from pytz import utc
+ 
+-from wagtail.admin.forms import WagtailAdminModelForm, WagtailAdminPageForm
++from wagtail.admin.forms import WagtailAdminModelForm
++from wagtail.pages.forms import WagtailAdminPageForm
+ from wagtail.admin.rich_text import DraftailRichTextArea
+ from wagtail.admin.widgets import AdminAutoHeightTextInput, AdminDateInput, AdminPageChooser
+ from wagtail.edit_handlers import (
+diff --git a/wagtail/admin/widgets/chooser.py b/wagtail/admin/widgets/chooser.py
+index 5490faae4..4911b0db3 100644
+--- a/wagtail/admin/widgets/chooser.py
++++ b/wagtail/admin/widgets/chooser.py
+@@ -7,7 +7,6 @@ from django.urls import reverse
+ from django.utils.translation import gettext_lazy as _
+ 
+ from wagtail.admin.staticfiles import versioned_static
+-from wagtail.models import Page
+ from wagtail.telepath import register
+ from wagtail.utils.widgets import WidgetWithScript
+ from wagtail.widget_adapters import WidgetAdapter
+@@ -80,6 +79,8 @@ class AdminPageChooser(AdminChooser):
+     link_to_chosen_text = _('Edit this page')
+ 
+     def __init__(self, target_models=None, can_choose_root=False, user_perms=None, **kwargs):
++        from wagtail.models import Page
++
+         super().__init__(**kwargs)
+ 
+         if target_models:
+@@ -96,6 +97,8 @@ class AdminPageChooser(AdminChooser):
+         Return a Page class that is an ancestor for all Page classes in
+         ``target_models``, and is also a concrete Page class itself.
+         """
++        from wagtail.models import Page
++
+         if len(self.target_models) == 1:
+             # Shortcut for a single page type
+             return self.target_models[0]
+@@ -120,6 +123,8 @@ class AdminPageChooser(AdminChooser):
+         }
+ 
+     def get_value_data(self, value):
++        from wagtail.models import Page
++
+         if value is None:
+             return None
+         elif isinstance(value, Page):
+diff --git a/wagtail/edit_handlers.py b/wagtail/edit_handlers.py
+index 84506bc5f..4e37c568c 100644
+--- a/wagtail/edit_handlers.py
++++ b/wagtail/edit_handlers.py
+@@ -3,10 +3,8 @@ import re
+ 
+ from django import forms
+ from django.apps import apps
+-from django.conf import settings
+ from django.contrib.auth import get_user_model
+ from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured
+-from django.core.signals import setting_changed
+ from django.db.models.fields import CharField, TextField
+ from django.dispatch import receiver
+ from django.forms.formsets import DELETION_FIELD_NAME, ORDERING_FIELD_NAME
+@@ -19,15 +17,11 @@ from modelcluster.models import get_serializable_data_for_fields
+ from taggit.managers import TaggableManager
+ 
+ from wagtail.admin import compare, widgets
+-from wagtail.admin.forms.comments import CommentForm, CommentReplyForm
+ from wagtail.admin.forms.models import (
+     DIRECT_FORM_FIELD_OVERRIDES, FORM_FIELD_OVERRIDES, WagtailAdminModelForm, formfield_for_dbfield)
+ from wagtail.coreutils import camelcase_to_underscore, resolve_model_string
+ from wagtail.fields import RichTextField
+-from wagtail.models import Page, commenting
+-from wagtail.pages.forms import WagtailAdminPageForm
+-from wagtail.templatetags.wagtailadmin_tags import avatar_url, user_display_name
+-from wagtail.utils.decorators import cached_classmethod
++from wagtail.models import commenting
+ 
+ 
+ # DIRECT_FORM_FIELD_OVERRIDES, FORM_FIELD_OVERRIDES are imported for backwards
+@@ -353,8 +347,7 @@ class BaseFormEditHandler(BaseCompositeEditHandler):
+         # If a custom form class was passed to the EditHandler, use it.
+         # Otherwise, use the base_form_class from the model.
+         # If that is not defined, use WagtailAdminModelForm.
+-        model_form_class = getattr(self.model, 'base_form_class',
+-                                   WagtailAdminModelForm)
++        model_form_class = getattr(self.model, 'get_base_form_class', lambda: getattr(self.model, 'base_form_class', None) or WagtailAdminModelForm)()
+         base_form_class = self.base_form_class or model_form_class
+ 
+         return get_form_for_model(
+@@ -828,6 +821,8 @@ class CommentPanel(EditHandler):
+         return ['comment_notifications']
+ 
+     def required_formsets(self):
++        from wagtail.admin.forms.comments import CommentForm, CommentReplyForm
++
+         # add the comments formset
+         # we need to pass in the current user for validation on the formset
+         # this could alternatively be done on the page form itself if we added the
+@@ -863,6 +858,8 @@ class CommentPanel(EditHandler):
+ 
+     def get_context(self):
+         def user_data(user):
++            from wagtail.templatetags.wagtailadmin_tags import avatar_url, user_display_name
++
+             return {
+                 'name': user_display_name(user),
+                 'avatar_url': avatar_url(user)
+@@ -909,80 +906,6 @@ class CommentPanel(EditHandler):
+         return panel
+ 
+ 
+-# Now that we've defined EditHandlers, we can set up wagtailcore.Page to have some.
+-def set_default_page_edit_handlers(cls):
+-    cls.content_panels = [
+-        FieldPanel('title', classname="full title"),
+-    ]
+-
+-    cls.promote_panels = [
+-        MultiFieldPanel([
+-            FieldPanel('slug'),
+-            FieldPanel('seo_title'),
+-            FieldPanel('search_description'),
+-        ], gettext_lazy('For search engines')),
+-        MultiFieldPanel([
+-            FieldPanel('show_in_menus'),
+-        ], gettext_lazy('For site menus')),
+-    ]
+-
+-    cls.settings_panels = [
+-        PublishingPanel(),
+-        PrivacyModalPanel(),
+-    ]
+-
+-    if getattr(settings, 'WAGTAILADMIN_COMMENTS_ENABLED', True):
+-        cls.settings_panels.append(CommentPanel())
+-
+-    cls.base_form_class = WagtailAdminPageForm
+-
+-
+-set_default_page_edit_handlers(Page)
+-
+-
+-@cached_classmethod
+-def get_edit_handler(cls):
+-    """
+-    Get the EditHandler to use in the Wagtail admin when editing this page type.
+-    """
+-    if hasattr(cls, 'edit_handler'):
+-        edit_handler = cls.edit_handler
+-    else:
+-        # construct a TabbedInterface made up of content_panels, promote_panels
+-        # and settings_panels, skipping any which are empty
+-        tabs = []
+-
+-        if cls.content_panels:
+-            tabs.append(ObjectList(cls.content_panels,
+-                                   heading=gettext_lazy('Content')))
+-        if cls.promote_panels:
+-            tabs.append(ObjectList(cls.promote_panels,
+-                                   heading=gettext_lazy('Promote')))
+-        if cls.settings_panels:
+-            tabs.append(ObjectList(cls.settings_panels,
+-                                   heading=gettext_lazy('Settings'),
+-                                   classname='settings'))
+-
+-        edit_handler = TabbedInterface(tabs, base_form_class=cls.base_form_class)
+-
+-    return edit_handler.bind_to(model=cls)
+-
+-
+-Page.get_edit_handler = get_edit_handler
+-
+-
+-@receiver(setting_changed)
+-def reset_page_edit_handler_cache(**kwargs):
+-    """
+-    Clear page edit handler cache when global WAGTAILADMIN_COMMENTS_ENABLED settings are changed
+-    """
+-    if kwargs["setting"] == 'WAGTAILADMIN_COMMENTS_ENABLED':
+-        set_default_page_edit_handlers(Page)
+-        for model in apps.get_models():
+-            if issubclass(model, Page):
+-                model.get_edit_handler.cache_clear()
+-
+-
+ class StreamFieldPanel(FieldPanel):
+     def __init__(self, *args, **kwargs):
+         disable_comments = kwargs.pop('disable_comments', True)
+diff --git a/wagtail/models/admin.py b/wagtail/models/admin.py
+index 94f4fb53d..abc79fc45 100644
+--- a/wagtail/models/admin.py
++++ b/wagtail/models/admin.py
+@@ -10,9 +10,6 @@ from django.utils.translation import gettext_lazy as _
+ from modelcluster.fields import ParentalKey
+ from taggit.models import Tag
+ 
+-from wagtail import edit_handlers
+-from wagtail.models import Page
+-
+ 
+ def upload_avatar_to(instance, filename):
+     filename, ext = os.path.splitext(filename)
+@@ -90,12 +87,6 @@ class UserProfile(models.Model):
+         verbose_name_plural = _('user profiles')
+ 
+ 
+-# The edit_handlers module extends Page with some additional attributes required by
+-# wagtail admin (namely, base_form_class and get_edit_handler). Importing this within
+-# wagtail.admin.models ensures that this happens in advance of running wagtail.admin's
+-# system checks.
+-
+-
+ # A dummy model that exists purely to attach the access_admin permission type to, so that it
+ # doesn't get identified as a stale content type and removed by the remove_stale_contenttypes
+ # management command.
+@@ -109,6 +100,7 @@ class Admin(Model):
+ 
+ def get_object_usage(obj):
+     """Returns a queryset of pages that link to a particular object"""
++    from wagtail.models import Page
+ 
+     pages = Page.objects.none()
+ 
+diff --git a/wagtail/models/logging.py b/wagtail/models/logging.py
+index 83b42b388..e192431ff 100644
+--- a/wagtail/models/logging.py
++++ b/wagtail/models/logging.py
+@@ -14,7 +14,6 @@ from django.utils.functional import cached_property
+ from django.utils.translation import gettext_lazy as _
+ 
+ from wagtail.log_actions import registry as log_action_registry
+-from wagtail.models import Page, UserPagePermissionsProxy
+ 
+ 
+ class LogEntryQuerySet(models.QuerySet):
+@@ -277,12 +276,16 @@ class PageLogEntryQuerySet(LogEntryQuerySet):
+     def get_content_type_ids(self):
+         # for reporting purposes, pages of all types are combined under a single "Page"
+         # object type
++        from wagtail.models import Page
++
+         if self.exists():
+             return set([ContentType.objects.get_for_model(Page).pk])
+         else:
+             return set()
+ 
+     def filter_on_content_type(self, content_type):
++        from wagtail.models import Page
++
+         if content_type == ContentType.objects.get_for_model(Page):
+             return self
+         else:
+@@ -301,6 +304,8 @@ class PageLogEntryManager(BaseLogEntryManager):
+         return super().log_action(instance, action, **kwargs)
+ 
+     def viewable_by_user(self, user):
++        from wagtail.models import Page, UserPagePermissionsProxy
++
+         q = Q(
+             page__in=UserPagePermissionsProxy(user).explorable_pages().values_list('pk', flat=True)
+         )
+diff --git a/wagtail/models/pages.py b/wagtail/models/pages.py
+index 5f80aebcd..977bc79fd 100644
+--- a/wagtail/models/pages.py
++++ b/wagtail/models/pages.py
+@@ -60,6 +60,11 @@ from .i18n import Locale, TranslatableMixin
+ from .sites import Site
+ from .view_restrictions import BaseViewRestriction
+ 
++from wagtail.edit_handlers import FieldPanel, MultiFieldPanel, PublishingPanel, PrivacyModalPanel, CommentPanel, ObjectList, TabbedInterface
++from wagtail.utils.decorators import cached_classmethod
++from django.core.signals import setting_changed
++from django.apps import apps
++
+ 
+ logger = logging.getLogger('wagtail')
+ 
+@@ -319,9 +324,60 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+ 
+     # Define these attributes early to avoid masking errors. (Issue #3078)
+     # The canonical definition is in wagtailadmin.edit_handlers.
+-    content_panels = []
+-    promote_panels = []
+-    settings_panels = []
++    content_panels = [
++        FieldPanel('title', classname="full title"),
++    ]
++    promote_panels = [
++        MultiFieldPanel([
++            FieldPanel('slug'),
++            FieldPanel('seo_title'),
++            FieldPanel('search_description'),
++        ], _('For search engines')),
++        MultiFieldPanel([
++            FieldPanel('show_in_menus'),
++        ], _('For site menus')),
++    ]
++    settings_panels = [
++        PublishingPanel(),
++        PrivacyModalPanel(),
++    ]
++
++    if getattr(settings, 'WAGTAILADMIN_COMMENTS_ENABLED', True):
++        settings_panels.append(CommentPanel())
++
++    base_form_class = None
++
++    @classmethod
++    def get_base_form_class(cls):
++        from wagtail.pages.forms import WagtailAdminPageForm
++        return cls.base_form_class or WagtailAdminPageForm
++
++    @cached_classmethod
++    def get_edit_handler(cls):
++        """
++        Get the EditHandler to use in the Wagtail admin when editing this page type.
++        """
++        if hasattr(cls, 'edit_handler'):
++            edit_handler = cls.edit_handler
++        else:
++            # construct a TabbedInterface made up of content_panels, promote_panels
++            # and settings_panels, skipping any which are empty
++            tabs = []
++
++            if cls.content_panels:
++                tabs.append(ObjectList(cls.content_panels,
++                                    heading=_('Content')))
++            if cls.promote_panels:
++                tabs.append(ObjectList(cls.promote_panels,
++                                    heading=_('Promote')))
++            if cls.settings_panels:
++                tabs.append(ObjectList(cls.settings_panels,
++                                    heading=_('Settings'),
++                                    classname='settings'))
++
++            edit_handler = TabbedInterface(tabs, base_form_class=cls.get_base_form_class())
++
++        return edit_handler.bind_to(model=cls)
+ 
+     def __init__(self, *args, **kwargs):
+         super().__init__(*args, **kwargs)
+@@ -3183,3 +3239,19 @@ class WorkflowPage(models.Model):
+     class Meta:
+         verbose_name = _('workflow page')
+         verbose_name_plural = _('workflow pages')
++
++
++@receiver(setting_changed)
++def reset_page_edit_handler_cache(**kwargs):
++    """
++    Clear page edit handler cache when global WAGTAILADMIN_COMMENTS_ENABLED settings are changed
++    """
++    if kwargs["setting"] == 'WAGTAILADMIN_COMMENTS_ENABLED':
++        if getattr(settings, 'WAGTAILADMIN_COMMENTS_ENABLED', True):
++            Page.settings_panels.append(CommentPanel())
++        else:
++            Page.settings_panels = [panel for panel in Page.settings_panels if not isinstance(panel, CommentPanel)]
++
++        for model in apps.get_models():
++            if issubclass(model, Page):
++                model.get_edit_handler.cache_clear()
+-- 
+2.27.0
+

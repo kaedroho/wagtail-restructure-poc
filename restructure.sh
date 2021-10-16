@@ -153,6 +153,9 @@ roper rename-module --module wagtail/pages/pages.py --to-name forms --do
 roper move-module --source wagtail/admin/tests/pages --target wagtail/pages --do
 roper rename-module --module wagtail/pages/pages --to-name tests --do
 roper move-by-name --name PasswordViewRestrictionForm --source wagtail/forms.py --target wagtail/pages/forms.py
+find . -name '*.py' -exec sed -i "s/from wagtail.admin.forms import WagtailAdminPageForm/from wagtail.pages.forms import WagtailAdminPageForm/g" {} \;
+find . -name '*.rst' -exec sed -i "s/from wagtail.admin.forms import WagtailAdminPageForm/from wagtail.pages.forms import WagtailAdminPageForm/g" {} \;
+sed -i "s/from wagtail.pages.forms import WagtailAdminPageForm  # NOQA//g" wagtail/admin/forms/__init__.py
 isort -rc wagtail
 git add .
 git commit -m "Extract pages admin views into new wagtail/pages folder"
@@ -274,3 +277,30 @@ isort -rc wagtail
 
 git add .
 git commit -m "Extract pages models into separate module"
+
+
+# Reorganise
+
+roper move-by-name --name UserProfile --source wagtail/models/user_profile.py --target wagtail/models/admin.py --do
+roper move-by-name --name upload_avatar_to --source wagtail/models/user_profile.py --target wagtail/models/admin.py --do
+rm wagtail/models/user_profile.py
+sed -i 's/from .user_profile import/from .admin import/g' wagtail/models/__init__.py
+isort -rc wagtail
+git add .
+git commit -m "Move UserProfile into admin models"
+
+roper move-by-name --name ModelLogEntry --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+roper move-by-name --name ModelLogEntryManager --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+roper move-by-name --name BaseLogEntry --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+roper move-by-name --name BaseLogEntryManager --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+roper move-by-name --name LogEntryQuerySet --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+rm wagtail/models/audit_log.py
+sed -i 's/from .audit_log import/from .logging import/g' wagtail/models/__init__.py
+isort -rc wagtail
+git add .
+git commit -m "Move ModelLogEntry into logging models"
+
+git apply --reject --whitespace=fix ../patches/fixup-edit-handlers-models-admin-forms.patch
+isort -rc wagtail
+git add .
+git commit -m "Fixup edit handlers, admin forms, and page models"
