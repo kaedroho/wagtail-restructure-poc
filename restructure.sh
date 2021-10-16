@@ -137,62 +137,6 @@ isort -rc wagtail
 git commit -m "No longer necessary to add 'wagtail.admin' to INSTALLED_APPS"
 
 
-# Extract pages/workflows into separate folders
-
-mkdir wagtail/pages
-touch wagtail/pages/__init__.py
-roper move-module --source wagtail/admin/views/pages --target wagtail/pages --do
-roper rename-module --module wagtail/pages/pages --to-name admin_views --do
-# Flipped order to avoid roper crash
-roper rename-module --module wagtail/admin/views/page_privacy.py --to-name privacy --do
-roper move-module --source wagtail/admin/views/privacy.py --target wagtail/pages/admin_views --do
-roper move-module --source wagtail/admin/urls/pages.py --target wagtail/pages --do
-roper rename-module --module wagtail/pages/pages.py --to-name admin_urls --do
-roper move-module --source wagtail/admin/forms/pages.py --target wagtail/pages --do
-roper rename-module --module wagtail/pages/pages.py --to-name forms --do
-roper move-module --source wagtail/admin/tests/pages --target wagtail/pages --do
-roper rename-module --module wagtail/pages/pages --to-name tests --do
-roper move-by-name --name PasswordViewRestrictionForm --source wagtail/forms.py --target wagtail/pages/forms.py
-find . -name '*.py' -exec sed -i "s/from wagtail.admin.forms import WagtailAdminPageForm/from wagtail.pages.forms import WagtailAdminPageForm/g" {} \;
-find . -name '*.rst' -exec sed -i "s/from wagtail.admin.forms import WagtailAdminPageForm/from wagtail.pages.forms import WagtailAdminPageForm/g" {} \;
-sed -i "s/from wagtail.pages.forms import WagtailAdminPageForm  # NOQA//g" wagtail/admin/forms/__init__.py
-isort -rc wagtail
-git add .
-git commit -m "Extract pages admin views into new wagtail/pages folder"
-
-
-mkdir wagtail/workflows
-touch wagtail/workflows/__init__.py
-roper move-module --source wagtail/workflows.py --target wagtail/workflows --do
-roper rename-module --module wagtail/workflows/workflows.py --to-name utils --do
-roper move-module --source wagtail/admin/views/workflows.py --target wagtail/workflows --do
-roper rename-module --module wagtail/workflows/workflows.py --to-name admin_views --do
-roper move-module --source wagtail/admin/urls/workflows.py --target wagtail/workflows --do
-roper rename-module --module wagtail/workflows/workflows.py --to-name admin_urls --do
-roper move-module --source wagtail/admin/forms/workflows.py --target wagtail/workflows --do
-roper rename-module --module wagtail/workflows/workflows.py --to-name forms --do
-roper move-module --source wagtail/admin/widgets/workflows.py --target wagtail/workflows --do
-roper rename-module --module wagtail/workflows/workflows.py --to-name widgets --do
-roper move-module --source wagtail/admin/tests/test_workflows.py --target wagtail/workflows --do
-roper rename-module --module wagtail/workflows/test_workflows.py --to-name tests --do
-roper move-by-name --name TaskStateCommentForm --source wagtail/forms.py --target wagtail/workflows/forms.py --do
-# wagtail/forms.py should be empty now
-if [ ! -s wagtail/forms.py ] ; then
-  rm wagtail/forms.py
-fi
-
-sed -i 's/import wagtail.workflows.forms//g' wagtail/models/__init__.py
-sed -i 's/return wagtail.workflows.forms.TaskStateCommentForm/from wagtail.workflows.forms import TaskStateCommentForm\n        return TaskStateCommentForm/g' wagtail/models/__init__.py
-sed -i 's/wagtail.workflows.publish_workflow_state/wagtail.workflows.utils.publish_workflow_state/g' wagtail/models/__init__.py
-sed -i 's/from wagtail.workflows import get_task_types/from .utils import get_task_types/g' wagtail/workflows/admin_views.py
-sed -i 's/wagtail.admin.views.workflows/wagtail.workflows.admin_views/g' wagtail/workflows/tests.py
-
-isort -rc wagtail
-
-git add .
-git commit -m "Extract workflows admin views into new wagtail/workflows folder"
-
-
 # Break up core models
 
 touch wagtail/models/workflows.py
@@ -214,14 +158,14 @@ sed -i 's/wagtail.models.workflows.WorkflowState/WorkflowState/g' wagtail/models
 sed -i 's/import wagtail.models.workflows//g' wagtail/query.py
 sed -i 's/wagtail.models.workflows.WorkflowState/WorkflowState/g' wagtail/query.py
 
-sed -i 's/from wagtail.models import Page, UserProfile, WorkflowPage, workflows/from wagtail.models import Page, UserProfile, WorkflowPage, WorkflowTask, Workflow, WorkflowState, TaskState, Task, GroupApprovalTask/g' wagtail/workflows/tests.py
-sed -i 's/workflows.Workflow/Workflow/g' wagtail/workflows/tests.py
-sed -i 's/workflows.Task/Task/g' wagtail/workflows/tests.py
-sed -i 's/workflows.WorkflowTask/WorkflowTask/g' wagtail/workflows/tests.py
-sed -i 's/workflows.GroupApprovalTask/GroupApprovalTask/g' wagtail/workflows/tests.py
-sed -i 's/workflows.WorkflowState/WorkflowState/g' wagtail/workflows/tests.py
-sed -i 's/workflows.TaskState/TaskState/g' wagtail/workflows/tests.py
-sed -i 's/workflows.TaskState/TaskState/g' wagtail/workflows/tests.py
+sed -i 's/from wagtail.models import Page, UserProfile, WorkflowPage, workflows/from wagtail.models import Page, UserProfile, WorkflowPage, WorkflowTask, Workflow, WorkflowState, TaskState, Task, GroupApprovalTask/g' wagtail/admin/tests/test_workflows.py
+sed -i 's/workflows.Workflow/Workflow/g' wagtail/admin/tests/test_workflows.py
+sed -i 's/workflows.Task/Task/g' wagtail/admin/tests/test_workflows.py
+sed -i 's/workflows.WorkflowTask/WorkflowTask/g' wagtail/admin/tests/test_workflows.py
+sed -i 's/workflows.GroupApprovalTask/GroupApprovalTask/g' wagtail/admin/tests/test_workflows.py
+sed -i 's/workflows.WorkflowState/WorkflowState/g' wagtail/admin/tests/test_workflows.py
+sed -i 's/workflows.TaskState/TaskState/g' wagtail/admin/tests/test_workflows.py
+sed -i 's/workflows.TaskState/TaskState/g' wagtail/admin/tests/test_workflows.py
 
 isort -rc wagtail
 
@@ -300,6 +244,7 @@ isort -rc wagtail
 git add .
 git commit -m "Move ModelLogEntry into logging models"
 
+find . -name '*.py' -exec sed -i 's/from wagtail.admin.forms import WagtailAdminPageForm/from wagtail.admin.forms.pages import WagtailAdminPageForm/g' {} \;
 git apply --reject --whitespace=fix ../patches/fixup-edit-handlers-models-admin-forms.patch
 isort -rc wagtail
 git add .
@@ -311,6 +256,7 @@ roper move-by-name --name MATCH_DEFAULT --source wagtail/siteutils.py --target w
 roper move-by-name --name MATCH_HOSTNAME_DEFAULT --source wagtail/siteutils.py --target wagtail/models/sites.py --do
 roper move-by-name --name MATCH_HOSTNAME_PORT --source wagtail/siteutils.py --target wagtail/models/sites.py --do
 rm wagtail/siteutils.py
+git apply --reject --whitespace=fix ../patches/fixup-sites-models.patch
 isort -rc wagtail
 git add .
 git commit -m "Merge sites utilities into sites models"
@@ -325,25 +271,26 @@ git add .
 git commit -m "Move some modules into utils"
 
 roper move-module --source wagtail/query.py --target wagtail/models --do
+sed -i 's/from wagtail.models.sites import Site/from wagtail.models.sites import Site/g' wagtail/models/query.py
+sed -i 's/from .models import WorkflowState/from .workflows import WorkflowState/g' wagtail/models/query.py
+sed -i 's/from .models import PageRevision/from .pages import PageRevision/g' wagtail/models/query.py
+sed -i 's/from wagtail.models import Page/from .pages import Page/g' wagtail/models/query.py
+sed -i 's/from wagtail.models import PageViewRestriction/from .pages import PageViewRestriction/g' wagtail/models/query.py
+find . -name '*.py' -exec sed -i 's/wagtail\.query/wagtail\.models\.query/g' {} \;
 isort -rc wagtail
 git add .
 git commit -m "Move query into models"
-
-roper move-module --source wagtail/views.py --target wagtail/pages --do
-isort -rc wagtail
-git add .
-git commit -m "Move serve view into pages"
 
 roper rename-module --module wagtail/log_actions.py --to-name logging --do
 isort -rc wagtail
 git add .
 git commit -m "Rename log_actions to logging"
 
-roper move-by-name --name PageClassNotFoundError --source wagtail/exceptions.py --target wagtail/pages/admin_views/edit.py --do
+roper move-by-name --name PageClassNotFoundError --source wagtail/exceptions.py --target wagtail/admin/views/pages/edit.py --do
 rm wagtail/exceptions.py
 isort -rc wagtail
 git add .
-git commit -m "Move PageClassNotFoundError to edit view (the only place where it is thrown)"
+git commit -m "Move PageClassNotFoundError to page edit view (the only place where it is thrown)"
 
 
 # Move some apps into contrib
