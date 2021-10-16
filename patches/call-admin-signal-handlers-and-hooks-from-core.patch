@@ -1,6 +1,6 @@
-From a2b42d67710db0e8002a86e414a0b5b466796e63 Mon Sep 17 00:00:00 2001
+From 33716f7a20883ff2c76d4a091b23dfd6b80f9c2e Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
-Date: Fri, 15 Oct 2021 16:21:18 +0100
+Date: Sat, 16 Oct 2021 10:34:09 +0100
 Subject: [PATCH] Call admin signal handlers and hooks from core
 
 ---
@@ -34,12 +34,12 @@ index d5084143e..2c63e5812 100644
 +
          from wagtail import widget_adapters  # noqa
 diff --git a/wagtail/wagtail_hooks.py b/wagtail/wagtail_hooks.py
-index 4188aa7f8..c2e2afc2c 100644
+index 20476e6dc..dc52e7058 100644
 --- a/wagtail/wagtail_hooks.py
 +++ b/wagtail/wagtail_hooks.py
-@@ -13,6 +13,8 @@ from wagtail.models import ModelLogEntry, Page, PageLogEntry, PageViewRestrictio
+@@ -13,6 +13,8 @@ from wagtail.log_actions import LogFormatter
+ from wagtail.models import ModelLogEntry, Page, PageLogEntry, PageViewRestriction
  from wagtail.rich_text.pages import PageLinkHandler
- from wagtail.coreutils import get_content_languages
  
 +from .admin import wagtail_hooks  # noqa
 +

@@ -16,12 +16,14 @@ echo "/.ropeproject" >> .gitignore
 # 7564 "Move UserProfile into wagtailcore" https://github.com/wagtail/wagtail/pull/7564
 
 git apply --reject --whitespace=fix ../patches/pr7277.patch
+isort -rc wagtail
 git add .
 git commit -m "Apply PR7277"
 
 git apply --reject --whitespace=fix ../patches/pr7564.patch
 # git apply doesn't seem to like deleting stuff
 rm wagtail/users/models.py
+isort -rc wagtail
 git add .
 git commit -m "Apply PR7564"
 
@@ -32,12 +34,14 @@ git commit -m "Apply PR7564"
 roper rename-module --module wagtail/core/utils.py --to-name coreutils --do
 find . -name '*.rst' -exec sed -i 's/wagtail.core.utils/wagtail.core.coreutils/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail.core.utils/wagtail.core.coreutils/g' {} \;
+isort -rc wagtail
 git add .
 git commit -m "Move core.utils to core.coreutils"
 
 roper rename-module --module wagtail/core/sites.py --to-name siteutils --do
 find . -name '*.rst' -exec sed -i 's/wagtail.core.sites/wagtail.core.siteutils/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail.core.sites/wagtail.core.siteutils/g' {} \;
+isort -rc wagtail
 git add .
 git commit -m "Move core.sites to core.siteutils"
 
@@ -48,6 +52,7 @@ find . -name '*.py' -exec sed -i 's/wagtail\.tests/wagtail\.test/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail\.tests/wagtail\.test/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.tests/wagtail\.test/g' {} \;
 sed -i "s/os.path.join(WAGTAIL_ROOT, 'tests', 'testapp', 'jinja2_templates'),/os.path.join(WAGTAIL_ROOT, 'test', 'testapp', 'jinja2_templates'),/g" wagtail/test/settings.py
+isort -rc wagtail
 git add .
 git commit -m "Move tests to test"
 
@@ -60,6 +65,7 @@ find . -name '*.rst' -exec sed -i 's/wagtail\.core/wagtail/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.core/wagtail/g' {} \;
 sed -i "s/from ..core.coreutils/from wagtail.coreutils/g" wagtail/embeds/embeds.py
 sed -i "s/self.assertRaises(ValueError, resolve_model_string, 'wagtail.Page')/self.assertRaises(ValueError, resolve_model_string, 'wagtail.core.Page')/g" wagtail/tests/tests.py
+isort -rc wagtail
 git add .
 git commit -m "Move wagtail.core to wagtail"
 
@@ -70,7 +76,7 @@ roper move-module --source wagtail/admin/edit_handlers.py --target wagtail --do
 find . -name '*.py' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
-
+isort -rc wagtail
 git add .
 git commit -m "Move edit handlers to wagtail.edit_handlers"
 
@@ -78,10 +84,11 @@ roper move-module --source wagtail/admin/models.py --target wagtail/models --do
 roper rename-module --module wagtail/models/models.py --to-name admin --do
 # Note --pythonpath=. stops Python from looking for pip-installed Wagtail
 django-admin makemigrations --pythonpath=. --settings=wagtail.test.settings
+isort -rc wagtail
 git add .
 git commit -m "Move admin models into core"
 
-# TOOD: This migration doesn't copy the wagtailadmin.can_access_permission. It just creates a new one
+# TODO: This migration doesn't copy the wagtailadmin.can_access_permission. It just creates a new one
 cp ../patches/0070_create_admin_access_permissions.py wagtail/migrations/0070_create_admin_access_permissions.py
 # Rename all occurances of wagtailadmin.can_access_admin permission
 find . -name '*.py' -exec sed -i 's/wagtailadmin\.access_admin/wagtailcore\.access_admin/g' {} \;
@@ -89,7 +96,7 @@ find . -name '*.py' -exec sed -i "s/content_type__app_label='wagtailadmin'/conte
 find . -name '*.json' -exec sed -i 's/\["access_admin", "wagtailadmin", "admin"\]/\["access_admin", "wagtailcore", "admin"\]/g' {} \;
 sed -i "s/app_label='wagtailadmin',/app_label='wagtailcore',/g" wagtail/admin/tests/pages/test_revisions.py
 sed -i "s/app_label='wagtailadmin',/app_label='wagtailcore',/g" wagtail/contrib/settings/tests/test_admin.py
-
+isort -rc wagtail
 git add .
 git commit -m "Add wagtailcore.can_access_admin permisison"
 
@@ -106,7 +113,7 @@ sed -i 's/wagtail\/wagtailadmin\/static\//wagtail\/static\//g' wagtail/utils/set
 sed -i "s/os.path.dirname(__file__), 'static', 'wagtailadmin', 'css', 'normalize.css'/os.path.dirname(os.path.dirname(__file__)), 'static', 'wagtailadmin', 'css', 'normalize.css'/g" wagtail/admin/checks.py
 find ./wagtail/static_src -name '*.scss' -exec sed -i "s/\/..\/client\//\/client\//g" {} \;
 find . -name '*.js' -exec sed -i 's/wagtail\/admin\/static_src/wagtail\/static_src/g' {} \;
-
+isort -rc wagtail
 git add .
 git commit -m "Move admin static into core"
 
@@ -115,15 +122,18 @@ roper move-module --source wagtail/admin/templatetags/wagtailadmin_tags.py --tar
 sed -i 's/from .templatetags.wagtailuserbar import wagtailuserbar/from wagtail.admin.templatetags.wagtailuserbar import wagtailuserbar/g' wagtail/admin/jinja2tags.py
 roper move-module --source wagtail/admin/templatetags/wagtailuserbar.py --target wagtail/templatetags --do
 rm wagtail/admin/templatetags/__init__.py
+isort -rc wagtail
 git add .
 git commit -m "Move admin templatetags into core"
 
 git apply --reject --whitespace=fix ../patches/call-admin-signal-handlers-and-hooks-from-core.patch
 git add .
+isort -rc wagtail
 git commit -m "Call admin signal handlers and hooks from core"
 
 git apply --reject --whitespace=fix ../patches/remove-admin-from-installed-apps.patch
 git add .
+isort -rc wagtail
 git commit -m "No longer necessary to add 'wagtail.admin' to INSTALLED_APPS"
 
 
@@ -143,7 +153,7 @@ roper rename-module --module wagtail/pages/pages.py --to-name forms --do
 roper move-module --source wagtail/admin/tests/pages --target wagtail/pages --do
 roper rename-module --module wagtail/pages/pages --to-name tests --do
 roper move-by-name --name PasswordViewRestrictionForm --source wagtail/forms.py --target wagtail/pages/forms.py
-
+isort -rc wagtail
 git add .
 git commit -m "Extract pages admin views into new wagtail/pages folder"
 
@@ -173,6 +183,8 @@ sed -i 's/return wagtail.workflows.forms.TaskStateCommentForm/from wagtail.workf
 sed -i 's/wagtail.workflows.publish_workflow_state/wagtail.workflows.utils.publish_workflow_state/g' wagtail/models/__init__.py
 sed -i 's/from wagtail.workflows import get_task_types/from .utils import get_task_types/g' wagtail/workflows/admin_views.py
 sed -i 's/wagtail.admin.views.workflows/wagtail.workflows.admin_views/g' wagtail/workflows/tests.py
+
+isort -rc wagtail
 
 git add .
 git commit -m "Extract workflows admin views into new wagtail/workflows folder"
@@ -208,6 +220,8 @@ sed -i 's/workflows.WorkflowState/WorkflowState/g' wagtail/workflows/tests.py
 sed -i 's/workflows.TaskState/TaskState/g' wagtail/workflows/tests.py
 sed -i 's/workflows.TaskState/TaskState/g' wagtail/workflows/tests.py
 
+isort -rc wagtail
+
 git add .
 git commit -m "Extract workflows models into separate module"
 
@@ -216,7 +230,7 @@ touch wagtail/models/logging.py
 roper move-by-name --name PageLogEntry --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
 roper move-by-name --name PageLogEntryManager --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
 roper move-by-name --name PageLogEntryQuerySet --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
-
+isort -rc wagtail
 git add .
 git commit -m "Extract logging models into separate module"
 
@@ -233,26 +247,30 @@ sed -i 's/wagtail.models.commenting.Comment.DoesNotExist/Comment.DoesNotExist/g'
 
 git apply --reject --whitespace=fix ../patches/fixup-commenting-models.patch
 
+isort -rc wagtail
+
 git add .
 git commit -m "Extract commenting models into separate module"
 
 
 mv wagtail/models/__init__.py wagtail/models/pages.py
 cat << EOF > wagtail/models/__init__.py
-from .copying import _copy, _copy_m2m_relations
-from .i18n import Locale, TranslatableMixin, BootstrapTranslatableModel, get_translatable_models
-from .sites import Site, SiteRootPath
-from .view_restrictions import BaseViewRestriction
-from .pages import Page, PageRevision, PageManager, PageQuerySet, WAGTAIL_APPEND_SLASH, ParentNotTranslatedError, PAGE_MODEL_CLASSES, PageViewRestriction, PAGE_PERMISSION_TYPES, PAGE_PERMISSION_TYPE_CHOICES, get_default_page_content_type, UserPagePermissionsProxy, GroupPagePermission, WorkflowPage, Orderable, get_page_models, PAGE_TEMPLATE_VAR
-from .collections import Collection, CollectionViewRestriction, CollectionMember, get_root_collection_id, GroupCollectionPermission
-from .user_profile import UserProfile
-from .audit_log import ModelLogEntry
-from .workflows import WorkflowPage, WorkflowTask, Workflow, WorkflowState, TaskState, Task, GroupApprovalTask
+from .copying import _copy, _copy_m2m_relations  # noqa
+from .i18n import Locale, TranslatableMixin, BootstrapTranslatableModel, get_translatable_models  # noqa
+from .sites import Site, SiteRootPath  # noqa
+from .view_restrictions import BaseViewRestriction  # noqa
+from .pages import Page, PageRevision, PageManager, PageQuerySet, WAGTAIL_APPEND_SLASH, ParentNotTranslatedError, PAGE_MODEL_CLASSES, PageViewRestriction, PAGE_PERMISSION_TYPES, PAGE_PERMISSION_TYPE_CHOICES, get_default_page_content_type, UserPagePermissionsProxy, GroupPagePermission, WorkflowPage, Orderable, get_page_models, PAGE_TEMPLATE_VAR  # noqa
+from .collections import Collection, CollectionViewRestriction, CollectionMember, get_root_collection_id, GroupCollectionPermission  # noqa
+from .user_profile import UserProfile  # noqa
+from .audit_log import ModelLogEntry  # noqa
+from .workflows import WorkflowPage, WorkflowTask, Workflow, WorkflowState, TaskState, Task, GroupApprovalTask  # noqa
 EOF
 # There's a test that patches ContentType
 find . -name '*.py' -exec sed -i 's/wagtail.models.ContentType/wagtail.models.pages.ContentType/g' {} \;
 
 git apply --reject --whitespace=fix ../patches/fixup-pages-models.patch
+
+isort -rc wagtail
 
 git add .
 git commit -m "Extract pages models into separate module"

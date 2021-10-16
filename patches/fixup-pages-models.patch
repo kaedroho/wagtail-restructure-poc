@@ -1,26 +1,26 @@
-From 0c0d79a945e82dd557e221ff2c83298988b55c9d Mon Sep 17 00:00:00 2001
+From 6817ceee418d73bcc44dd9cd9a357ede07bf4c28 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
-Date: Sat, 16 Oct 2021 10:13:57 +0100
-Subject: [PATCH 3/3] Fixup pages models
+Date: Sat, 16 Oct 2021 10:51:43 +0100
+Subject: [PATCH] Fixup pages models
 
 ---
- wagtail/models/pages.py | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ wagtail/models/pages.py | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/wagtail/models/pages.py b/wagtail/models/pages.py
-index b50e1cd87..aad762f37 100644
+index f3796b05c..4968b252b 100644
 --- a/wagtail/models/pages.py
 +++ b/wagtail/models/pages.py
-@@ -57,7 +57,7 @@ from .sites import Site
+@@ -59,6 +59,8 @@ from .i18n import Locale, TranslatableMixin
+ from .sites import Site
  from .view_restrictions import BaseViewRestriction
- from .commenting import COMMENTS_RELATION_NAME, Comment
  
--
 +from wagtail.search import index
- 
++
  
  logger = logging.getLogger('wagtail')
-@@ -2326,6 +2326,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+ 
+@@ -2326,6 +2328,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
      @property
      def workflow_in_progress(self):
          """Returns True if a workflow is in progress on the current page, otherwise False"""
@@ -29,7 +29,7 @@ index b50e1cd87..aad762f37 100644
          if not getattr(settings, 'WAGTAIL_WORKFLOW_ENABLED', True):
              return False
  
-@@ -2342,6 +2344,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+@@ -2342,6 +2346,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
      @property
      def current_workflow_state(self):
          """Returns the in progress or needs changes workflow state on this page, if it exists"""
@@ -38,7 +38,7 @@ index b50e1cd87..aad762f37 100644
          if not getattr(settings, 'WAGTAIL_WORKFLOW_ENABLED', True):
              return None
  
-@@ -2361,6 +2365,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+@@ -2361,6 +2367,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
      @property
      def current_workflow_task_state(self):
          """Returns (specific class of) the current task state of the workflow on this page, if it exists"""
@@ -47,7 +47,7 @@ index b50e1cd87..aad762f37 100644
          current_workflow_state = self.current_workflow_state
          if current_workflow_state and current_workflow_state.status == WorkflowState.STATUS_IN_PROGRESS and current_workflow_state.current_task_state:
              return current_workflow_state.current_task_state.specific
-@@ -3176,5 +3182,3 @@ class WorkflowPage(models.Model):
+@@ -3176,5 +3184,3 @@ class WorkflowPage(models.Model):
      class Meta:
          verbose_name = _('workflow page')
          verbose_name_plural = _('workflow pages')
