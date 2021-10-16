@@ -304,3 +304,70 @@ git apply --reject --whitespace=fix ../patches/fixup-edit-handlers-models-admin-
 isort -rc wagtail
 git add .
 git commit -m "Fixup edit handlers, admin forms, and page models"
+
+roper move-by-name --name get_site_for_hostname --source wagtail/siteutils.py --target wagtail/models/sites.py --do
+roper move-by-name --name MATCH_HOSTNAME --source wagtail/siteutils.py --target wagtail/models/sites.py --do
+roper move-by-name --name MATCH_DEFAULT --source wagtail/siteutils.py --target wagtail/models/sites.py --do
+roper move-by-name --name MATCH_HOSTNAME_DEFAULT --source wagtail/siteutils.py --target wagtail/models/sites.py --do
+roper move-by-name --name MATCH_HOSTNAME_PORT --source wagtail/siteutils.py --target wagtail/models/sites.py --do
+rm wagtail/siteutils.py
+isort -rc wagtail
+git add .
+git commit -m "Merge sites utilities into sites models"
+
+roper move-module --source wagtail/compat.py --target wagtail/utils --do
+roper move-module --source wagtail/telepath.py --target wagtail/utils --do
+roper move-module --source wagtail/treebeard.py --target wagtail/utils --do
+roper move-module --source wagtail/url_routing.py --target wagtail/utils --do
+roper move-module --source wagtail/whitelist.py --target wagtail/utils --do
+isort -rc wagtail
+git add .
+git commit -m "Move some modules into utils"
+
+roper move-module --source wagtail/query.py --target wagtail/models --do
+isort -rc wagtail
+git add .
+git commit -m "Move query into models"
+
+roper move-module --source wagtail/views.py --target wagtail/pages --do
+isort -rc wagtail
+git add .
+git commit -m "Move serve view into pages"
+
+roper rename-module --module wagtail/log_actions.py --to-name logging --do
+isort -rc wagtail
+git add .
+git commit -m "Rename log_actions to logging"
+
+roper move-by-name --name PageClassNotFoundError --source wagtail/exceptions.py --target wagtail/pages/admin_views/edit.py --do
+rm wagtail/exceptions.py
+isort -rc wagtail
+git add .
+git commit -m "Move PageClassNotFoundError to edit view (the only place where it is thrown)"
+
+
+# Move some apps into contrib
+
+mv wagtail/images wagtail/contrib/images
+find . -name '*.py' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
+find . -name '*.rst' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
+find . -name '*.md' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
+isort -rc wagtail
+git add .
+git commit -m "Move images to contrib"
+
+mv wagtail/documents wagtail/contrib/documents
+find . -name '*.py' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
+find . -name '*.rst' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
+find . -name '*.md' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
+isort -rc wagtail
+git add .
+git commit -m "Move documents to contrib"
+
+mv wagtail/embeds wagtail/contrib/embeds
+find . -name '*.py' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
+find . -name '*.rst' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
+find . -name '*.md' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
+isort -rc wagtail
+git add .
+git commit -m "Move embeds to contrib"
