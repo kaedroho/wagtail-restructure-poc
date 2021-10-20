@@ -4,22 +4,22 @@ Date: Sat, 16 Oct 2021 17:31:46 +0100
 Subject: [PATCH] Fixup sites models
 
 ---
- wagtail/models/sites.py | 7 -------
+ wagtail/core/models/sites.py | 7 -------
  1 file changed, 7 deletions(-)
 
-diff --git a/wagtail/models/sites.py b/wagtail/models/sites.py
+diff --git a/wagtail/core/models/sites.py b/wagtail/core/models/sites.py
 index 3c8414b39..977f6e1dc 100644
---- a/wagtail/models/sites.py
-+++ b/wagtail/models/sites.py
+--- a/wagtail/core/models/sites.py
++++ b/wagtail/core/models/sites.py
 @@ -8,20 +8,13 @@ from django.db.models.functions import Lower
  from django.http.request import split_domain_port
  from django.utils.translation import gettext_lazy as _
- 
--from wagtail.siteutils import MATCH_HOSTNAME_PORT, MATCH_HOSTNAME_DEFAULT, MATCH_DEFAULT, MATCH_HOSTNAME
+
+-from wagtail.core.sites import MATCH_HOSTNAME_PORT, MATCH_HOSTNAME_DEFAULT, MATCH_DEFAULT, MATCH_HOSTNAME
  from django.apps import apps
  from django.db.models import Case, IntegerField, Q, When
- 
- 
+
+
  MATCH_HOSTNAME_PORT = 0
 -
 -
@@ -30,8 +30,8 @@ index 3c8414b39..977f6e1dc 100644
 -
 -
  MATCH_HOSTNAME = 3
- 
- 
--- 
+
+
+--
 2.27.0
 

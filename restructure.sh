@@ -38,12 +38,16 @@ isort -rc wagtail
 git add .
 git commit -m "Move core.utils to core.coreutils"
 
-roper rename-module --module wagtail/core/sites.py --to-name siteutils --do
-find . -name '*.rst' -exec sed -i 's/wagtail.core.sites/wagtail.core.siteutils/g' {} \;
-find . -name '*.md' -exec sed -i 's/wagtail.core.sites/wagtail.core.siteutils/g' {} \;
+roper move-by-name --name get_site_for_hostname --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+roper move-by-name --name MATCH_HOSTNAME --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+roper move-by-name --name MATCH_DEFAULT --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+roper move-by-name --name MATCH_HOSTNAME_DEFAULT --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+roper move-by-name --name MATCH_HOSTNAME_PORT --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+rm wagtail/core/sites.py
+git apply --reject --whitespace=fix ../patches/fixup-sites-models.patch
 isort -rc wagtail
 git add .
-git commit -m "Move core.sites to core.siteutils"
+git commit -m "Merge sites utilities into sites models"
 
 roper rename-module --module wagtail/tests --to-name test --do
 # Need to update .py files here since wagtail.tests appears a lot in strings
@@ -249,17 +253,6 @@ git apply --reject --whitespace=fix ../patches/fixup-edit-handlers-models-admin-
 isort -rc wagtail
 git add .
 git commit -m "Fixup edit handlers, admin forms, and page models"
-
-roper move-by-name --name get_site_for_hostname --source wagtail/siteutils.py --target wagtail/models/sites.py --do
-roper move-by-name --name MATCH_HOSTNAME --source wagtail/siteutils.py --target wagtail/models/sites.py --do
-roper move-by-name --name MATCH_DEFAULT --source wagtail/siteutils.py --target wagtail/models/sites.py --do
-roper move-by-name --name MATCH_HOSTNAME_DEFAULT --source wagtail/siteutils.py --target wagtail/models/sites.py --do
-roper move-by-name --name MATCH_HOSTNAME_PORT --source wagtail/siteutils.py --target wagtail/models/sites.py --do
-rm wagtail/siteutils.py
-git apply --reject --whitespace=fix ../patches/fixup-sites-models.patch
-isort -rc wagtail
-git add .
-git commit -m "Merge sites utilities into sites models"
 
 roper move-module --source wagtail/compat.py --target wagtail/utils --do
 roper move-module --source wagtail/telepath.py --target wagtail/utils --do
