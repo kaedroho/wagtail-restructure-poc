@@ -1,0 +1,59 @@
+From 3b970423f984fa66996c6577b6032988b15b6200 Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Fri, 22 Oct 2021 13:22:06 +0100
+Subject: [PATCH] Commenting models fixup imports
+
+---
+ wagtail/core/models/__init__.py | 10 +++++++++-
+ wagtail/models/__init__.py      | 16 ++++++++++++----
+ 2 files changed, 21 insertions(+), 5 deletions(-)
+
+diff --git a/wagtail/core/models/__init__.py b/wagtail/core/models/__init__.py
+index 85e03ec16..512ec95a4 100644
+--- a/wagtail/core/models/__init__.py
++++ b/wagtail/core/models/__init__.py
+@@ -1,4 +1,12 @@
+-from wagtail.models.logging import PageLogEntry, PageLogEntryManager, PageLogEntryQuerySet
++from wagtail.models import (
++    PAGE_MODEL_CLASSES, PAGE_PERMISSION_TYPE_CHOICES, PAGE_PERMISSION_TYPES,
++    PAGE_TEMPLATE_VAR, AbstractPage, BasePageManager,
++    GroupPagePermission, Orderable, Page, PageBase,
++    PageManager, PagePermissionTester, PageRevision,
++    PageViewRestriction, ParentNotTranslatedError, SubmittedRevisionsManager, UserPagePermissionsProxy, get_default_page_content_type,
++    get_page_models, get_streamfield_names, logger, reassign_root_page_locale_on_delete)  # noqa
++from wagtail.models.commenting import COMMENTS_RELATION_NAME, Comment, CommentReply, PageSubscription   # noqa
++from wagtail.models.logging import PageLogEntry, PageLogEntryManager, PageLogEntryQuerySet  # noqa
+ from wagtail.models.workflows import (  # noqa
+     GroupApprovalTask, Task, TaskManager, TaskState, TaskStateManager, Workflow, WorkflowManager,
+     WorkflowPage, WorkflowState, WorkflowStateManager, WorkflowTask)
+diff --git a/wagtail/models/__init__.py b/wagtail/models/__init__.py
+index 5f019d070..bed7b943b 100644
+--- a/wagtail/models/__init__.py
++++ b/wagtail/models/__init__.py
+@@ -53,11 +53,19 @@ from wagtail.signals import (
+ from wagtail.treebeard import TreebeardPathFixMixin
+ from wagtail.url_routing import RouteResult
+ 
+-from .copying import _copy, _copy_m2m_relations
+-from .i18n import Locale, TranslatableMixin
+-from .sites import Site
++from .audit_log import BaseLogEntry, BaseLogEntryManager, LogEntryQuerySet, ModelLogEntry  # noqa
++from .collections import (  # noqa
++    BaseCollectionManager, Collection, CollectionManager, CollectionMember,
++    CollectionViewRestriction, GroupCollectionPermission, GroupCollectionPermissionManager,
++    get_root_collection_id)
++from .commenting import COMMENTS_RELATION_NAME, Comment, CommentReply, PageSubscription  # noqa
++from .copying import _copy, _copy_m2m_relations, _extract_field_data  # noqa
++from .i18n import (  # noqa
++    BootstrapTranslatableMixin, BootstrapTranslatableModel, Locale, LocaleManager,
++    TranslatableMixin, bootstrap_translatable_model, get_translatable_models)
++from .sites import Site, SiteManager, SiteRootPath  # noqa
++from .user_profile import UserProfile  # noqa
+ from .view_restrictions import BaseViewRestriction
+-from .commenting import COMMENTS_RELATION_NAME, Comment
+ 
+ 
+ logger = logging.getLogger('wagtail')
+-- 
+2.30.2
+

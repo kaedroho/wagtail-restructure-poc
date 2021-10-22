@@ -73,6 +73,12 @@ isort -rc wagtail
 git add .
 git commit -m "Move wagtail.core to wagtail"
 
+rm -rf wagtail/core
+cp -r ../dummy_modules/core wagtail/core
+isort -rc wagtail
+git add .
+git commit -m "Add dummy modules to maintain wagtail.core imports"
+
 
 # Merge admin into core
 
@@ -80,6 +86,7 @@ roper move-module --source wagtail/admin/edit_handlers.py --target wagtail --do
 find . -name '*.py' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
+cp -r ../dummy_modules/admin/edit_handlers.py wagtail/admin/edit_handlers.py
 isort -rc wagtail
 git add .
 git commit -m "Move edit handlers to wagtail.edit_handlers"
@@ -171,6 +178,8 @@ sed -i 's/workflows.WorkflowState/WorkflowState/g' wagtail/admin/tests/test_work
 sed -i 's/workflows.TaskState/TaskState/g' wagtail/admin/tests/test_workflows.py
 sed -i 's/workflows.TaskState/TaskState/g' wagtail/admin/tests/test_workflows.py
 
+git apply --reject --whitespace=fix ../patches/workflow-models-fixup-imports.patch
+
 isort -rc wagtail
 
 git add .
@@ -181,6 +190,9 @@ touch wagtail/models/logging.py
 roper move-by-name --name PageLogEntry --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
 roper move-by-name --name PageLogEntryManager --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
 roper move-by-name --name PageLogEntryQuerySet --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
+
+git apply --reject --whitespace=fix ../patches/logging-models-fixup-imports.patch
+
 isort -rc wagtail
 git add .
 git commit -m "Extract logging models into separate module"
@@ -197,6 +209,7 @@ sed -i 's/wagtail.models.commenting.COMMENTS_RELATION_NAME/COMMENTS_RELATION_NAM
 sed -i 's/wagtail.models.commenting.Comment.DoesNotExist/Comment.DoesNotExist/g' wagtail/models/__init__.py
 
 git apply --reject --whitespace=fix ../patches/fixup-commenting-models.patch
+git apply --reject --whitespace=fix ../patches/commenting-models-fixup-imports.patch
 
 isort -rc wagtail
 
@@ -220,6 +233,7 @@ EOF
 find . -name '*.py' -exec sed -i 's/wagtail.models.ContentType/wagtail.models.pages.ContentType/g' {} \;
 
 git apply --reject --whitespace=fix ../patches/fixup-pages-models.patch
+git apply --reject --whitespace=fix ../patches/pages-models-fixup-imports.patch
 
 isort -rc wagtail
 
@@ -233,6 +247,10 @@ roper move-by-name --name UserProfile --source wagtail/models/user_profile.py --
 roper move-by-name --name upload_avatar_to --source wagtail/models/user_profile.py --target wagtail/models/admin.py --do
 rm wagtail/models/user_profile.py
 sed -i 's/from .user_profile import/from .admin import/g' wagtail/models/__init__.py
+rm wagtail/core/models/user_profile.py
+cat << EOF > wagtail/core/models/user_profile.py
+from wagtail.models.admin import UserProfile  # noqa
+EOF
 isort -rc wagtail
 git add .
 git commit -m "Move UserProfile into admin models"
@@ -244,6 +262,11 @@ roper move-by-name --name BaseLogEntryManager --source wagtail/models/audit_log.
 roper move-by-name --name LogEntryQuerySet --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
 rm wagtail/models/audit_log.py
 sed -i 's/from .audit_log import/from .logging import/g' wagtail/models/__init__.py
+rm wagtail/core/models/audit_log.py
+cat << EOF > wagtail/core/models/audit_log.py
+from wagtail.models.logging import (  # noqa
+    BaseLogEntry, BaseLogEntryManager, LogEntryQuerySet, ModelLogEntry)
+EOF
 isort -rc wagtail
 git add .
 git commit -m "Move ModelLogEntry into logging models"
@@ -292,6 +315,7 @@ mv wagtail/images wagtail/contrib/images
 find . -name '*.py' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
+cp -r ../dummy_modules/images wagtail/images
 isort -rc wagtail
 git add .
 git commit -m "Move images to contrib"
@@ -300,6 +324,7 @@ mv wagtail/documents wagtail/contrib/documents
 find . -name '*.py' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
+cp -r ../dummy_modules/documents wagtail/documents
 isort -rc wagtail
 git add .
 git commit -m "Move documents to contrib"
@@ -308,6 +333,7 @@ mv wagtail/embeds wagtail/contrib/embeds
 find . -name '*.py' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
+cp -r ../dummy_modules/embeds wagtail/embeds
 isort -rc wagtail
 git add .
 git commit -m "Move embeds to contrib"

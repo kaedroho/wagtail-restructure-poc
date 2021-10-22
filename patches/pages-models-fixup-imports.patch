@@ -1,0 +1,22 @@
+From 710f857dc3413d92db83bb0e2a77dc34d022ae5b Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Fri, 22 Oct 2021 13:25:34 +0100
+Subject: [PATCH] Pages models fixup imports
+
+---
+ wagtail/core/models/__init__.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/wagtail/core/models/__init__.py b/wagtail/core/models/__init__.py
+index b8663c1b0..72db72380 100644
+--- a/wagtail/core/models/__init__.py
++++ b/wagtail/core/models/__init__.py
+@@ -1,4 +1,4 @@
+-from wagtail.models import (  # noqa
++from wagtail.models.pages import (  # noqa
+     PAGE_MODEL_CLASSES, PAGE_PERMISSION_TYPE_CHOICES, PAGE_PERMISSION_TYPES, PAGE_TEMPLATE_VAR,
+     AbstractPage, BasePageManager, GroupPagePermission, Orderable, Page, PageBase, PageManager,
+     PagePermissionTester, PageRevision, PageViewRestriction, ParentNotTranslatedError,
+-- 
+2.30.2
+
