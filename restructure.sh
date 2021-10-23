@@ -16,14 +16,14 @@ echo "/.ropeproject" >> .gitignore
 # 7564 "Move UserProfile into wagtailcore" https://github.com/wagtail/wagtail/pull/7564
 
 git apply --reject --whitespace=fix ../patches/pr7277.patch
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Apply PR7277"
 
 git apply --reject --whitespace=fix ../patches/pr7564.patch
 # git apply doesn't seem to like deleting stuff
 rm wagtail/users/models.py
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Apply PR7564"
 
@@ -31,32 +31,32 @@ git commit -m "Apply PR7564"
 # Rename wagtail.core to wagtail
 # This part starts off with a few renames to resolves conflicts, then moves everthing under wagtail/core to the top level
 
-roper rename-module --module wagtail/core/utils.py --to-name coreutils --do
+poetry run roper rename-module --module wagtail/core/utils.py --to-name coreutils --do
 find . -name '*.rst' -exec sed -i 's/wagtail.core.utils/wagtail.core.coreutils/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail.core.utils/wagtail.core.coreutils/g' {} \;
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move core.utils to core.coreutils"
 
-roper move-by-name --name get_site_for_hostname --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
-roper move-by-name --name MATCH_HOSTNAME --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
-roper move-by-name --name MATCH_DEFAULT --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
-roper move-by-name --name MATCH_HOSTNAME_DEFAULT --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
-roper move-by-name --name MATCH_HOSTNAME_PORT --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+poetry run roper move-by-name --name get_site_for_hostname --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+poetry run roper move-by-name --name MATCH_HOSTNAME --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+poetry run roper move-by-name --name MATCH_DEFAULT --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+poetry run roper move-by-name --name MATCH_HOSTNAME_DEFAULT --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
+poetry run roper move-by-name --name MATCH_HOSTNAME_PORT --source wagtail/core/sites.py --target wagtail/core/models/sites.py --do
 rm wagtail/core/sites.py
 git apply --reject --whitespace=fix ../patches/fixup-sites-models.patch
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Merge sites utilities into sites models"
 
-roper rename-module --module wagtail/tests --to-name test --do
+poetry run roper rename-module --module wagtail/tests --to-name test --do
 # Need to update .py files here since wagtail.tests appears a lot in strings
 # Also, escaping . for this one since wagtail_tests appears often
 find . -name '*.py' -exec sed -i 's/wagtail\.tests/wagtail\.test/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail\.tests/wagtail\.test/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.tests/wagtail\.test/g' {} \;
 sed -i "s/os.path.join(WAGTAIL_ROOT, 'tests', 'testapp', 'jinja2_templates'),/os.path.join(WAGTAIL_ROOT, 'test', 'testapp', 'jinja2_templates'),/g" wagtail/test/settings.py
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move tests to test"
 
@@ -69,33 +69,33 @@ find . -name '*.rst' -exec sed -i 's/wagtail\.core/wagtail/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.core/wagtail/g' {} \;
 sed -i "s/from ..core.coreutils/from wagtail.coreutils/g" wagtail/embeds/embeds.py
 sed -i "s/self.assertRaises(ValueError, resolve_model_string, 'wagtail.Page')/self.assertRaises(ValueError, resolve_model_string, 'wagtail.core.Page')/g" wagtail/tests/tests.py
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move wagtail.core to wagtail"
 
 rm -rf wagtail/core
 cp -r ../dummy_modules/core wagtail/core
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Add dummy modules to maintain wagtail.core imports"
 
 
 # Merge admin into core
 
-roper move-module --source wagtail/admin/edit_handlers.py --target wagtail --do
+poetry run roper move-module --source wagtail/admin/edit_handlers.py --target wagtail --do
 find . -name '*.py' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
 cp -r ../dummy_modules/admin/edit_handlers.py wagtail/admin/edit_handlers.py
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move edit handlers to wagtail.edit_handlers"
 
-roper move-module --source wagtail/admin/models.py --target wagtail/models --do
-roper rename-module --module wagtail/models/models.py --to-name admin --do
+poetry run roper move-module --source wagtail/admin/models.py --target wagtail/models --do
+poetry run roper rename-module --module wagtail/models/models.py --to-name admin --do
 # Note --pythonpath=. stops Python from looking for pip-installed Wagtail
-django-admin makemigrations --pythonpath=. --settings=wagtail.test.settings
-isort -rc wagtail
+poetry run django-admin makemigrations --pythonpath=. --settings=wagtail.test.settings
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move admin models into core"
 
@@ -107,7 +107,7 @@ find . -name '*.py' -exec sed -i "s/content_type__app_label='wagtailadmin'/conte
 find . -name '*.json' -exec sed -i 's/\["access_admin", "wagtailadmin", "admin"\]/\["access_admin", "wagtailcore", "admin"\]/g' {} \;
 sed -i "s/app_label='wagtailadmin',/app_label='wagtailcore',/g" wagtail/admin/tests/pages/test_revisions.py
 sed -i "s/app_label='wagtailadmin',/app_label='wagtailcore',/g" wagtail/contrib/settings/tests/test_admin.py
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Add wagtailcore.can_access_admin permisison"
 
@@ -124,43 +124,43 @@ sed -i 's/wagtail\/wagtailadmin\/static\//wagtail\/static\//g' wagtail/utils/set
 sed -i "s/os.path.dirname(__file__), 'static', 'wagtailadmin', 'css', 'normalize.css'/os.path.dirname(os.path.dirname(__file__)), 'static', 'wagtailadmin', 'css', 'normalize.css'/g" wagtail/admin/checks.py
 find ./wagtail/static_src -name '*.scss' -exec sed -i "s/\/..\/client\//\/client\//g" {} \;
 find . -name '*.js' -exec sed -i 's/wagtail\/admin\/static_src/wagtail\/static_src/g' {} \;
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move admin static into core"
 
-roper move-module --source wagtail/admin/templatetags/wagtailadmin_tags.py --target wagtail/templatetags --do
-# Roper crashes if we don't make this particular import absolute
+poetry run roper move-module --source wagtail/admin/templatetags/wagtailadmin_tags.py --target wagtail/templatetags --do
+# poetry run roper crashes if we don't make this particular import absolute
 sed -i 's/from .templatetags.wagtailuserbar import wagtailuserbar/from wagtail.admin.templatetags.wagtailuserbar import wagtailuserbar/g' wagtail/admin/jinja2tags.py
-roper move-module --source wagtail/admin/templatetags/wagtailuserbar.py --target wagtail/templatetags --do
+poetry run roper move-module --source wagtail/admin/templatetags/wagtailuserbar.py --target wagtail/templatetags --do
 rm wagtail/admin/templatetags/__init__.py
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move admin templatetags into core"
 
 git apply --reject --whitespace=fix ../patches/call-admin-signal-handlers-and-hooks-from-core.patch
 git add .
-isort -rc wagtail
+poetry run isort -rc wagtail
 git commit -m "Call admin signal handlers and hooks from core"
 
 git apply --reject --whitespace=fix ../patches/remove-admin-from-installed-apps.patch
 git add .
-isort -rc wagtail
+poetry run isort -rc wagtail
 git commit -m "No longer necessary to add 'wagtail.admin' to INSTALLED_APPS"
 
 
 # Break up core models
 
 touch wagtail/models/workflows.py
-roper move-by-name --name TaskState --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
-roper move-by-name --name TaskStateManager --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
-roper move-by-name --name WorkflowState --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
-roper move-by-name --name WorkflowStateManager --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
-roper move-by-name --name GroupApprovalTask --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
-roper move-by-name --name Workflow --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
-roper move-by-name --name WorkflowManager --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
-roper move-by-name --name Task --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
-roper move-by-name --name TaskManager --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
-roper move-by-name --name WorkflowTask --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name TaskState --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name TaskStateManager --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name WorkflowState --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name WorkflowStateManager --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name GroupApprovalTask --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name Workflow --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name WorkflowManager --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name Task --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name TaskManager --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
+poetry run roper move-by-name --name WorkflowTask --source wagtail/models/__init__.py --target wagtail/models/workflows.py --do
 
 sed -i 's/import wagtail.workflows.forms//g' wagtail/models/__init__.py
 sed -i 's/import wagtail.models.workflows//g' wagtail/models/__init__.py
@@ -180,29 +180,29 @@ sed -i 's/workflows.TaskState/TaskState/g' wagtail/admin/tests/test_workflows.py
 
 git apply --reject --whitespace=fix ../patches/workflow-models-fixup-imports.patch
 
-isort -rc wagtail
+poetry run isort -rc wagtail
 
 git add .
 git commit -m "Extract workflows models into separate module"
 
 
 touch wagtail/models/logging.py
-roper move-by-name --name PageLogEntry --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
-roper move-by-name --name PageLogEntryManager --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
-roper move-by-name --name PageLogEntryQuerySet --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
+poetry run roper move-by-name --name PageLogEntry --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
+poetry run roper move-by-name --name PageLogEntryManager --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
+poetry run roper move-by-name --name PageLogEntryQuerySet --source wagtail/models/__init__.py --target wagtail/models/logging.py --do
 
 git apply --reject --whitespace=fix ../patches/logging-models-fixup-imports.patch
 
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Extract logging models into separate module"
 
 
 touch wagtail/models/commenting.py
-roper move-by-name --name PageSubscription --source wagtail/models/__init__.py --target wagtail/models/commenting.py --do
-roper move-by-name --name CommentReply --source wagtail/models/__init__.py --target wagtail/models/commenting.py --do
-roper move-by-name --name Comment --source wagtail/models/__init__.py --target wagtail/models/commenting.py --do
-roper move-by-name --name COMMENTS_RELATION_NAME --source wagtail/models/__init__.py --target wagtail/models/commenting.py --do
+poetry run roper move-by-name --name PageSubscription --source wagtail/models/__init__.py --target wagtail/models/commenting.py --do
+poetry run roper move-by-name --name CommentReply --source wagtail/models/__init__.py --target wagtail/models/commenting.py --do
+poetry run roper move-by-name --name Comment --source wagtail/models/__init__.py --target wagtail/models/commenting.py --do
+poetry run roper move-by-name --name COMMENTS_RELATION_NAME --source wagtail/models/__init__.py --target wagtail/models/commenting.py --do
 
 sed -i 's/import wagtail.models.commenting/from .commenting import COMMENTS_RELATION_NAME, Comment/g' wagtail/models/__init__.py
 sed -i 's/wagtail.models.commenting.COMMENTS_RELATION_NAME/COMMENTS_RELATION_NAME/g' wagtail/models/__init__.py
@@ -211,7 +211,7 @@ sed -i 's/wagtail.models.commenting.Comment.DoesNotExist/Comment.DoesNotExist/g'
 git apply --reject --whitespace=fix ../patches/fixup-commenting-models.patch
 git apply --reject --whitespace=fix ../patches/commenting-models-fixup-imports.patch
 
-isort -rc wagtail
+poetry run isort -rc wagtail
 
 git add .
 git commit -m "Extract commenting models into separate module"
@@ -235,7 +235,7 @@ find . -name '*.py' -exec sed -i 's/wagtail.models.ContentType/wagtail.models.pa
 git apply --reject --whitespace=fix ../patches/fixup-pages-models.patch
 git apply --reject --whitespace=fix ../patches/pages-models-fixup-imports.patch
 
-isort -rc wagtail
+poetry run isort -rc wagtail
 
 git add .
 git commit -m "Extract pages models into separate module"
@@ -243,23 +243,23 @@ git commit -m "Extract pages models into separate module"
 
 # Reorganise
 
-roper move-by-name --name UserProfile --source wagtail/models/user_profile.py --target wagtail/models/admin.py --do
-roper move-by-name --name upload_avatar_to --source wagtail/models/user_profile.py --target wagtail/models/admin.py --do
+poetry run roper move-by-name --name UserProfile --source wagtail/models/user_profile.py --target wagtail/models/admin.py --do
+poetry run roper move-by-name --name upload_avatar_to --source wagtail/models/user_profile.py --target wagtail/models/admin.py --do
 rm wagtail/models/user_profile.py
 sed -i 's/from .user_profile import/from .admin import/g' wagtail/models/__init__.py
 rm wagtail/core/models/user_profile.py
 cat << EOF > wagtail/core/models/user_profile.py
 from wagtail.models.admin import UserProfile  # noqa
 EOF
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move UserProfile into admin models"
 
-roper move-by-name --name ModelLogEntry --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
-roper move-by-name --name ModelLogEntryManager --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
-roper move-by-name --name BaseLogEntry --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
-roper move-by-name --name BaseLogEntryManager --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
-roper move-by-name --name LogEntryQuerySet --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+poetry run roper move-by-name --name ModelLogEntry --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+poetry run roper move-by-name --name ModelLogEntryManager --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+poetry run roper move-by-name --name BaseLogEntry --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+poetry run roper move-by-name --name BaseLogEntryManager --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
+poetry run roper move-by-name --name LogEntryQuerySet --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
 rm wagtail/models/audit_log.py
 sed -i 's/from .audit_log import/from .logging import/g' wagtail/models/__init__.py
 rm wagtail/core/models/audit_log.py
@@ -267,44 +267,44 @@ cat << EOF > wagtail/core/models/audit_log.py
 from wagtail.models.logging import (  # noqa
     BaseLogEntry, BaseLogEntryManager, LogEntryQuerySet, ModelLogEntry)
 EOF
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move ModelLogEntry into logging models"
 
 find . -name '*.py' -exec sed -i 's/from wagtail.admin.forms import WagtailAdminPageForm/from wagtail.admin.forms.pages import WagtailAdminPageForm/g' {} \;
 git apply --reject --whitespace=fix ../patches/fixup-edit-handlers-models-admin-forms.patch
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Fixup edit handlers, admin forms, and page models"
 
-roper move-module --source wagtail/compat.py --target wagtail/utils --do
-roper move-module --source wagtail/telepath.py --target wagtail/utils --do
-roper move-module --source wagtail/treebeard.py --target wagtail/utils --do
-roper move-module --source wagtail/url_routing.py --target wagtail/utils --do
-roper move-module --source wagtail/whitelist.py --target wagtail/utils --do
-isort -rc wagtail
+poetry run roper move-module --source wagtail/compat.py --target wagtail/utils --do
+poetry run roper move-module --source wagtail/telepath.py --target wagtail/utils --do
+poetry run roper move-module --source wagtail/treebeard.py --target wagtail/utils --do
+poetry run roper move-module --source wagtail/url_routing.py --target wagtail/utils --do
+poetry run roper move-module --source wagtail/whitelist.py --target wagtail/utils --do
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move some modules into utils"
 
-roper move-module --source wagtail/query.py --target wagtail/models --do
+poetry run roper move-module --source wagtail/query.py --target wagtail/models --do
 sed -i 's/from wagtail.models.sites import Site/from wagtail.models.sites import Site/g' wagtail/models/query.py
 sed -i 's/from .models import WorkflowState/from .workflows import WorkflowState/g' wagtail/models/query.py
 sed -i 's/from .models import PageRevision/from .pages import PageRevision/g' wagtail/models/query.py
 sed -i 's/from wagtail.models import Page/from .pages import Page/g' wagtail/models/query.py
 sed -i 's/from wagtail.models import PageViewRestriction/from .pages import PageViewRestriction/g' wagtail/models/query.py
 find . -name '*.py' -exec sed -i 's/wagtail\.query/wagtail\.models\.query/g' {} \;
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move query into models"
 
-roper rename-module --module wagtail/log_actions.py --to-name logging --do
-isort -rc wagtail
+poetry run roper rename-module --module wagtail/log_actions.py --to-name logging --do
+poetry run isort -rc wagtail
 git add .
 git commit -m "Rename log_actions to logging"
 
-roper move-by-name --name PageClassNotFoundError --source wagtail/exceptions.py --target wagtail/admin/views/pages/edit.py --do
+poetry run roper move-by-name --name PageClassNotFoundError --source wagtail/exceptions.py --target wagtail/admin/views/pages/edit.py --do
 rm wagtail/exceptions.py
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move PageClassNotFoundError to page edit view (the only place where it is thrown)"
 
@@ -316,7 +316,7 @@ find . -name '*.py' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' 
 find . -name '*.rst' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
 cp -r ../dummy_modules/images wagtail/images
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move images to contrib"
 
@@ -325,7 +325,7 @@ find . -name '*.py' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documen
 find . -name '*.rst' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
 cp -r ../dummy_modules/documents wagtail/documents
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move documents to contrib"
 
@@ -334,6 +334,6 @@ find . -name '*.py' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' 
 find . -name '*.rst' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
 cp -r ../dummy_modules/embeds wagtail/embeds
-isort -rc wagtail
+poetry run isort -rc wagtail
 git add .
 git commit -m "Move embeds to contrib"
