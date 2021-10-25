@@ -315,6 +315,7 @@ mv wagtail/images wagtail/contrib/images
 find . -name '*.py' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
+sed -i "s/new App(path.join('wagtail', 'images'), {'appName': 'wagtailimages'}),/new App(path.join('wagtail', 'contrib', 'images'), {'appName': 'wagtailimages'}),/g" gulpfile.js/config.js
 cp -r ../dummy_modules/images wagtail/images
 poetry run isort -rc wagtail
 git add .
@@ -324,6 +325,7 @@ mv wagtail/documents wagtail/contrib/documents
 find . -name '*.py' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.documents/wagtail\.contrib\.documents/g' {} \;
+sed -i "s/new App(path.join('wagtail', 'documents'), {'appName': 'wagtaildocs'}),/new App(path.join('wagtail', 'contrib', 'documents'), {'appName': 'wagtaildocs'}),/g" gulpfile.js/config.js
 cp -r ../dummy_modules/documents wagtail/documents
 poetry run isort -rc wagtail
 git add .
@@ -333,6 +335,7 @@ mv wagtail/embeds wagtail/contrib/embeds
 find . -name '*.py' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
 find . -name '*.rst' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
 find . -name '*.md' -exec sed -i 's/wagtail\.embeds/wagtail\.contrib\.embeds/g' {} \;
+sed -i "s/new App(path.join('wagtail', 'embeds'), {'appName': 'wagtailembeds'}),/new App(path.join('wagtail', 'contrib', 'embeds'), {'appName': 'wagtailembeds'}),/g" gulpfile.js/config.js
 cp -r ../dummy_modules/embeds wagtail/embeds
 poetry run isort -rc wagtail
 git add .
