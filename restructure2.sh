@@ -38,7 +38,6 @@ git commit -m "Move users views into admin"
 mv wagtail/users/static_src/wagtailusers wagtail/static_src/wagtailusers
 sed -i "s/new App(path.join('wagtail', 'users'), {'appName': 'wagtailusers'}),/new App('wagtail', {'appName': 'wagtailusers'}),/g" gulpfile.js/config.js
 find ./wagtail/static_src/wagtailusers -name '*.scss' -exec sed -i "s/\/..\/client\//\/client\//g" {} \;
-#find . -name '*.js' -exec sed -i 's/wagtail\/users\/static_src/wagtail\/static_src/g' {} \;
 poetry run isort -rc wagtail
 git add .
 git commit -m "Move users static into core"
@@ -93,20 +92,24 @@ git commit -m "Move snippets templates into core"
 mv wagtail/snippets/static_src/wagtailsnippets wagtail/static_src/wagtailsnippets
 sed -i "s/new App(path.join('wagtail', 'snippets'), {'appName': 'wagtailsnippets'}),/new App('wagtail', {'appName': 'wagtailsnippets'}),/g" gulpfile.js/config.js
 find ./wagtail/static_src/wagtailsnippets -name '*.scss' -exec sed -i "s/\/..\/client\//\/client\//g" {} \;
-#find . -name '*.js' -exec sed -i 's/wagtail\/snippets\/static_src/wagtail\/static_src/g' {} \;
 poetry run isort -rc wagtail
 git add .
 git commit -m "Move snippets static into core"
 
-poetry run roper rename-module --module wagtail/sites/views --to-name sites --do
-poetry run roper move-module --source wagtail/sites/sites --target wagtail/admin/views --do
+poetry run roper rename-module --module wagtail/sites/views.py --to-name sites --do
+poetry run roper move-module --source wagtail/sites/sites.py --target wagtail/admin/views --do
+poetry run roper rename-module --module wagtail/sites/forms.py --to-name sites --do
+poetry run roper move-module --source wagtail/sites/sites.py --target wagtail/admin/forms --do
 poetry run roper rename-module --module wagtail/sites/tests.py --to-name sites --do
 poetry run roper move-module --source wagtail/sites/sites.py --target wagtail/admin/tests --do
-poetry run roper rename-module --module wagtail/sites/widgets.py --to-name sites --do
-poetry run roper move-module --source wagtail/sites/sites.py --target wagtail/admin/widgets --do
 poetry run isort -rc wagtail
 git add .
 git commit -m "Move sites views into admin"
+
+mv wagtail/sites/templates/wagtailsites wagtail/templates/wagtailsites
+poetry run isort -rc wagtail
+git add .
+git commit -m "Move sites templates into core"
 
 # Temporary, run these to get the test set up
 npm install
