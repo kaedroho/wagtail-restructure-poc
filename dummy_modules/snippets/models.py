@@ -1,1 +1,1 @@
-from .registry import *  # noqa
+from wagtail.contrib.snippets.models import *  # noqa
