@@ -137,6 +137,14 @@ poetry run isort -rc wagtail
 git add .
 git commit -m "Move admin templatetags into core"
 
+poetry run python ../catlocales.py wagtail/admin/locale wagtail/locale
+rm -rf wagtail/admin/locale
+pushd scripts
+poetry run bash -C "./rebuild-translation-sources.sh"
+popd
+git add .
+git commit -m "Move admin locale files into core"
+
 git apply --reject --whitespace=fix ../patches/call-admin-signal-handlers-and-hooks-from-core.patch
 git add .
 poetry run isort -rc wagtail
@@ -393,6 +401,14 @@ poetry run isort -rc wagtail
 git add .
 git commit -m "Move users static into core"
 
+poetry run python ../catlocales.py wagtail/users/locale wagtail/locale
+rm -rf wagtail/users/locale
+pushd scripts
+poetry run bash -C "./rebuild-translation-sources.sh"
+popd
+git add .
+git commit -m "Move users locale files into core"
+
 
 poetry run roper rename-module --module wagtail/locales/views.py --to-name locales --do
 poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/admin/views --do
@@ -409,6 +425,15 @@ poetry run isort -rc wagtail
 git add .
 git commit -m "Move locales templates into core"
 
+poetry run python ../catlocales.py wagtail/locales/locale wagtail/locale
+rm -rf wagtail/locales/locale
+pushd scripts
+poetry run bash -C "./rebuild-translation-sources.sh"
+popd
+git add .
+git commit -m "Move locales locale files into core"
+
+
 poetry run roper rename-module --module wagtail/sites/views.py --to-name sites --do
 poetry run roper move-module --source wagtail/sites/sites.py --target wagtail/admin/views --do
 poetry run roper rename-module --module wagtail/sites/forms.py --to-name sites --do
@@ -423,3 +448,11 @@ mv wagtail/sites/templates/wagtailsites wagtail/templates/wagtailsites
 poetry run isort -rc wagtail
 git add .
 git commit -m "Move sites templates into core"
+
+poetry run python ../catlocales.py wagtail/sites/locale wagtail/locale
+rm -rf wagtail/sites/locale
+pushd scripts
+poetry run bash -C "./rebuild-translation-sources.sh"
+popd
+git add .
+git commit -m "Move sites locale files into core"
