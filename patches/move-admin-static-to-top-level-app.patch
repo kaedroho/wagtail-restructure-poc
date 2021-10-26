@@ -1,0 +1,28 @@
+From fc2daa5f2a003b87d3be75e6c806bfe1a1b0646f Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Tue, 26 Oct 2021 13:20:15 +0100
+Subject: [PATCH] Move admin static to top level app
+
+---
+ client/webpack.config.js | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/client/webpack.config.js b/client/webpack.config.js
+index d3ed14e86..53f42fa59 100644
+--- a/client/webpack.config.js
++++ b/client/webpack.config.js
+@@ -7,8 +7,9 @@ const getOutputPath = (app, filename) => {
+   // Exceptions
+   if (app === 'documents') {
+     appLabel = 'wagtaildocs';
+-  } else if (app === 'contrib/table_block') {
+-    appLabel = 'table_block';
++  } else if (app === 'admin') {
++    // Wagtail admin static is in the top-level app
++    app = '';
+   }
+ 
+   return path.join('wagtail', app, 'static', appLabel, 'js', filename);
+-- 
+2.30.2
+

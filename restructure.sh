@@ -127,7 +127,7 @@ sed -i 's/wagtail\/admin\/static_src/wagtail\/static_src/g' package.json
 sed -i 's/wagtail\/wagtailadmin\/static_src/wagtail\/static_src/g' MANIFEST.in
 sed -i "s/new App(path.join('wagtail', 'admin'), {'appName': 'wagtailadmin'}),/new App('wagtail', {'appName': 'wagtailadmin'}),/g" gulpfile.js/config.js
 sed -i 's/wagtail\/wagtailadmin\/static\//wagtail\/static\//g' wagtail/utils/setup.py
-sed -i "s/getOutputPath('admin', 'vendor')/'wagtail\/static\/wagtailadmin\/js\/vendor'/g" client/webpack.config.js
+git apply --reject --whitespace=fix ../patches/move-admin-static-to-top-level-app.patch
 # TODO: Move this check into core instead
 sed -i "s/os.path.dirname(__file__), 'static', 'wagtailadmin', 'css', 'normalize.css'/os.path.dirname(os.path.dirname(__file__)), 'static', 'wagtailadmin', 'css', 'normalize.css'/g" wagtail/admin/checks.py
 find ./wagtail/static_src -name '*.scss' -exec sed -i "s/\/..\/client\//\/client\//g" {} \;
