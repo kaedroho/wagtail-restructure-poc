@@ -88,6 +88,7 @@ git commit -m "Add dummy modules to maintain wagtail.core imports"
 
 
 # Merge admin into core
+# TODO: Merge signal handlers
 
 poetry run roper move-module --source wagtail/admin/edit_handlers.py --target wagtail --do
 find . -name '*.py' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
@@ -135,6 +136,7 @@ find . -name '*.js' -exec sed -i 's/wagtail\/admin\/static_src/wagtail\/static_s
 poetry run isort -rc wagtail
 git add .
 git commit -m "Move admin static into core"
+# TODO: Update storybook.tsx files
 
 poetry run roper move-module --source wagtail/admin/templatetags/wagtailadmin_tags.py --target wagtail/templatetags --do
 # poetry run roper crashes if we don't make this particular import absolute
@@ -158,6 +160,8 @@ poetry run roper rename-module --module wagtail/wagtail_hooks.py --to-name core 
 poetry run roper move-module --source wagtail/core.py --target wagtail/wagtail_hooks --do
 poetry run roper rename-module --module wagtail/admin/wagtail_hooks.py --to-name admin --do
 poetry run roper move-module --source wagtail/admin/admin.py --target wagtail/wagtail_hooks --do
+touch wagtail/wagtail_hooks/utils.py
+poetry run roper move-by-name --source wagtail/wagtail_hooks/core.py --name require_wagtail_login --target wagtail/wagtail_hooks/utils.py --do
 cat << EOF > wagtail/wagtail_hooks/__init__.py
 """
 Temporarily made this into a folder to make it easier to automate the merging
@@ -166,7 +170,9 @@ Will concatenate these files later
 
 from .core import *  # noqa
 from .admin import *  # noqa
+from .utils import *  # noqa
 EOF
+sed -i 's/from wagtail.wagtail_hooks import require_wagtail_login, utils/from wagtail.wagtail_hooks import utils/g' wagtail/contrib/documents/wagtail_hooks.py
 git add .
 poetry run isort -rc wagtail
 git commit -m "Move admin wagtail_hooks.py into core"
@@ -283,6 +289,7 @@ EOF
 poetry run isort -rc wagtail
 git add .
 git commit -m "Move UserProfile into admin models"
+# TODO: Some fixups to make https://github.com/wagtail/wagtail/pull/7656/commits/9f2926848e8439ab27950df6fe67f995baa1ff58
 
 poetry run roper move-by-name --name ModelLogEntry --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
 poetry run roper move-by-name --name ModelLogEntryManager --source wagtail/models/audit_log.py --target wagtail/models/logging.py --do
@@ -299,6 +306,7 @@ EOF
 poetry run isort -rc wagtail
 git add .
 git commit -m "Move ModelLogEntry into logging models"
+# TODO: Fix https://github.com/wagtail/wagtail/pull/7656/commits/a5f0c7b78a1c0627dc02c9167729e9dd744b0344#diff-3ecb3133f5568a5901012a361d91dbfbdc0c46fdbf96cbe3c5f08db3c36d7ca2L194
 
 find . -name '*.py' -exec sed -i 's/from wagtail.admin.forms import WagtailAdminPageForm/from wagtail.admin.forms.pages import WagtailAdminPageForm/g' {} \;
 git apply --reject --whitespace=fix ../patches/fixup-edit-handlers-models-admin-forms.patch
@@ -336,9 +344,11 @@ rm wagtail/exceptions.py
 poetry run isort -rc wagtail
 git add .
 git commit -m "Move PageClassNotFoundError to page edit view (the only place where it is thrown)"
+# TODO: Fixup import https://github.com/wagtail/wagtail/pull/7656/commits/e93e9667a6e01c06f659babf95ce659c4a4611e0#diff-af279db108ccf16fa62b926938e314919e27b6df8919fa2dc07a7124f17dc9bdR16
 
 
 # Move some apps into contrib
+# TODO: don't update release notes
 
 mv wagtail/images wagtail/contrib/images
 find . -name '*.py' -exec sed -i 's/wagtail\.images/wagtail\.contrib\.images/g' {} \;
@@ -384,6 +394,8 @@ git commit -m "Move snippets to contrib"
 # Merge users/locales/sites
 
 # Move users into admin
+# TODO: Importing admin.urls causes circular import issue
+# https://github.com/wagtail/wagtail/pull/7656/commits/7ef7707062bdf3075c6ff7818bbf61dd80b08acf#diff-0b865de16d935928e64c9a1000b7cfbfa775457e0e703cb4ab83c50a79ad9e30R14
 poetry run roper move-module --source wagtail/users/views/groups.py --target wagtail/admin/views --do
 
 poetry run roper move-module --source wagtail/users/views/users.py --target wagtail/admin/views --do
@@ -397,8 +409,8 @@ poetry run roper move-module --source wagtail/users/users.py --target wagtail/ad
 poetry run roper rename-module --module wagtail/users/widgets.py --to-name users --do
 poetry run roper move-module --source wagtail/users/users.py --target wagtail/admin/widgets --do
 
-poetry run roper rename-module --module wagtail/users/tests.py --to-name users --do
-poetry run roper move-module --source wagtail/users/users.py --target wagtail/admin/tests --do
+poetry run roper rename-module --module wagtail/users/tests.py --to-name test_users --do
+poetry run roper move-module --source wagtail/users/test_users.py --target wagtail/admin/tests --do
 
 poetry run roper rename-module --module wagtail/users/utils.py --to-name usersutils --do
 poetry run roper move-module --source wagtail/users/usersutils.py --target wagtail/admin --do
@@ -461,8 +473,8 @@ poetry run roper move-module --source wagtail/locales/locales.py --target wagtai
 poetry run isort -rc wagtail
 poetry run roper rename-module --module wagtail/locales/forms.py --to-name locales --do
 poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/admin/forms --do
-poetry run roper rename-module --module wagtail/locales/tests.py --to-name locales --do
-poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/admin/tests --do
+poetry run roper rename-module --module wagtail/locales/tests.py --to-name test_locales --do
+poetry run roper move-module --source wagtail/locales/test_locales.py --target wagtail/admin/tests --do
 poetry run roper rename-module --module wagtail/locales/utils.py --to-name locales --do
 poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/admin --do
 git add .
@@ -498,8 +510,8 @@ poetry run roper rename-module --module wagtail/sites/views.py --to-name sites -
 poetry run roper move-module --source wagtail/sites/sites.py --target wagtail/admin/views --do
 poetry run roper rename-module --module wagtail/sites/forms.py --to-name sites --do
 poetry run roper move-module --source wagtail/sites/sites.py --target wagtail/admin/forms --do
-poetry run roper rename-module --module wagtail/sites/tests.py --to-name sites --do
-poetry run roper move-module --source wagtail/sites/sites.py --target wagtail/admin/tests --do
+poetry run roper rename-module --module wagtail/sites/tests.py --to-name test_sites --do
+poetry run roper move-module --source wagtail/sites/test_sites.py --target wagtail/admin/tests --do
 poetry run isort -rc wagtail
 git add .
 git commit -m "Move sites views into admin"
