@@ -528,3 +528,16 @@ git apply --reject --whitespace=fix ../patches/wagtail.sites-no-longer-needs-to-
 poetry run isort -rc wagtail
 git add .
 git commit -m "'wagtail.sites' no longer needs to be added to INSTALLED_APPS"
+
+
+# Move routable page into core
+
+poetry run roper move-module --source wagtail/contrib/routable_page/templatetags/wagtailroutablepage_tags.py --target wagtail/templatetags --do
+rm wagtail/contrib/routable_page/templatetags/__init__.py
+poetry run roper rename-module --module wagtail/contrib/routable_page/models.py --to-name routable_page --do
+poetry run roper move-module --source wagtail/contrib/routable_page/routable_page.py --target wagtail/models --do
+poetry run roper rename-module --module wagtail/contrib/routable_page/tests.py --to-name test_routable_page --do
+poetry run roper move-module --source wagtail/contrib/routable_page/test_routable_page.py --target wagtail/tests --do
+poetry run isort -rc wagtail
+git add .
+git commit -m "Move routable page into core"
