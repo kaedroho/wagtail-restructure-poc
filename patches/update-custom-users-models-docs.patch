@@ -1,0 +1,34 @@
+From 3d3a3e5512216f9bad85da30bc8233ce822b4b8c Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Tue, 26 Oct 2021 13:29:18 +0100
+Subject: [PATCH 3/4] Update custom users models docs
+
+---
+ docs/advanced_topics/customisation/custom_user_models.rst | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs/advanced_topics/customisation/custom_user_models.rst b/docs/advanced_topics/customisation/custom_user_models.rst
+index 57b2ddbd1..39bf9fa65 100644
+--- a/docs/advanced_topics/customisation/custom_user_models.rst
++++ b/docs/advanced_topics/customisation/custom_user_models.rst
+@@ -17,7 +17,7 @@ Create a custom user model. This must at minimum inherit from ``AbstractBaseUser
+       country = models.CharField(verbose_name='country', max_length=255)
+       status = models.ForeignKey(MembershipStatus, on_delete=models.SET_NULL, null=True, default=1)
+ 
+-Add the app containing your user model to ``INSTALLED_APPS`` - it must be above the ``'wagtail.users'`` line,
++Add the app containing your user model to ``INSTALLED_APPS`` - it must be above the ``'wagtail'`` line,
+ in order to override Wagtail's built-in templates - and set AUTH_USER_MODEL_ to reference
+ your model. In this example the app is called ``users`` and the model is ``User``
+ 
+@@ -32,7 +32,7 @@ Create your custom user 'create' and 'edit' forms in your app:
+   from django import forms
+   from django.utils.translation import gettext_lazy as _
+ 
+-  from wagtail.users.forms import UserEditForm, UserCreationForm
++  from wagtail.admin.forms.users import UserEditForm, UserCreationForm
+ 
+   from users.models import MembershipStatus
+ 
+-- 
+2.30.2
+

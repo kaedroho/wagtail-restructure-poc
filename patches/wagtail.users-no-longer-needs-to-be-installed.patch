@@ -1,0 +1,81 @@
+From 3b1aec734da99e6f1361e62fdadea377ada4bde1 Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@torchbox.com>
+Date: Tue, 26 Oct 2021 13:28:17 +0100
+Subject: [PATCH 2/4] 'wagtail.users' no longer needs to be installed as an app
+
+---
+ docs/advanced_topics/add_to_django_project.rst         | 5 -----
+ docs/getting_started/integrating_into_django.md        | 1 -
+ wagtail/project_template/project_name/settings/base.py | 1 -
+ wagtail/test/settings.py                               | 1 -
+ 4 files changed, 8 deletions(-)
+
+diff --git a/docs/advanced_topics/add_to_django_project.rst b/docs/advanced_topics/add_to_django_project.rst
+index 4e3a9572b..8846e912c 100644
+--- a/docs/advanced_topics/add_to_django_project.rst
++++ b/docs/advanced_topics/add_to_django_project.rst
+@@ -59,7 +59,6 @@ Apps (``settings.py``)
+     'wagtail.contrib.redirects',
+     'wagtail.contrib.embeds',
+     'wagtail.sites',
+-    'wagtail.users',
+     'wagtail.contrib.snippets',
+     'wagtail.contrib.documents',
+     'wagtail.contrib.images',
+@@ -91,9 +90,6 @@ Wagtail Apps
+ ``wagtail.contrib.snippets``
+   Editing interface for non-Page models and objects. See :ref:`Snippets`.
+ 
+-``wagtail.users``
+-  User editing interface.
+-
+ ``wagtail.contrib.images``
+   The Wagtail image content type.
+ 
+@@ -191,7 +187,6 @@ These two files should reside in your project directory (``myproject/myproject/`
+       'wagtail.contrib.redirects',
+       'wagtail.contrib.embeds',
+       'wagtail.sites',
+-      'wagtail.users',
+       'wagtail.contrib.snippets',
+       'wagtail.contrib.documents',
+       'wagtail.contrib.images',
+diff --git a/docs/getting_started/integrating_into_django.md b/docs/getting_started/integrating_into_django.md
+index 2fb695dd4..e95144f28 100644
+--- a/docs/getting_started/integrating_into_django.md
++++ b/docs/getting_started/integrating_into_django.md
+@@ -22,7 +22,6 @@ In your settings file, add the following apps to `INSTALLED_APPS`:
+ 'wagtail.contrib.redirects',
+ 'wagtail.contrib.embeds',
+ 'wagtail.sites',
+-'wagtail.users',
+ 'wagtail.contrib.snippets',
+ 'wagtail.contrib.documents',
+ 'wagtail.contrib.images',
+diff --git a/wagtail/project_template/project_name/settings/base.py b/wagtail/project_template/project_name/settings/base.py
+index 2aa3904ef..48dde69c4 100644
+--- a/wagtail/project_template/project_name/settings/base.py
++++ b/wagtail/project_template/project_name/settings/base.py
+@@ -31,7 +31,6 @@ INSTALLED_APPS = [
+     'wagtail.contrib.redirects',
+     'wagtail.contrib.embeds',
+     'wagtail.sites',
+-    'wagtail.users',
+     'wagtail.contrib.snippets',
+     'wagtail.contrib.documents',
+     'wagtail.contrib.images',
+diff --git a/wagtail/test/settings.py b/wagtail/test/settings.py
+index 0f4395914..78511af98 100644
+--- a/wagtail/test/settings.py
++++ b/wagtail/test/settings.py
+@@ -136,7 +136,6 @@ INSTALLED_APPS = [
+     'wagtail.contrib.images',
+     'wagtail.sites',
+     'wagtail.locales',
+-    'wagtail.users',
+     'wagtail.contrib.snippets',
+     'wagtail.contrib.documents',
+     'wagtail.api.v2',
+-- 
+2.30.2
+

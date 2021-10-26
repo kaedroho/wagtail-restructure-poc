@@ -73,6 +73,13 @@ poetry run isort -rc wagtail
 git add .
 git commit -m "Move wagtail.core to wagtail"
 
+find . -name '*.py' -exec sed -i 's/WagtailCoreAppConfig/WagtailAppConfig/g' {} \;
+find . -name '*.rst' -exec sed -i 's/WagtailCoreAppConfig/WagtailAppConfig/g' {} \;
+find . -name '*.md' -exec sed -i 's/WagtailCoreAppConfig/WagtailAppConfig/g' {} \;
+poetry run isort -rc wagtail
+git add .
+git commit -m "Rename WagtailCoreAppConfig to WagtailAppConfig"
+
 rm -rf wagtail/core
 cp -r ../dummy_modules/core wagtail/core
 poetry run isort -rc wagtail
@@ -120,6 +127,7 @@ sed -i 's/wagtail\/admin\/static_src/wagtail\/static_src/g' package.json
 sed -i 's/wagtail\/wagtailadmin\/static_src/wagtail\/static_src/g' MANIFEST.in
 sed -i "s/new App(path.join('wagtail', 'admin'), {'appName': 'wagtailadmin'}),/new App('wagtail', {'appName': 'wagtailadmin'}),/g" gulpfile.js/config.js
 sed -i 's/wagtail\/wagtailadmin\/static\//wagtail\/static\//g' wagtail/utils/setup.py
+sed -i "s/getOutputPath('admin', 'vendor')/'wagtail\/static\/wagtailadmin\/js\/vendor'/g" client/webpack.config.js
 # TODO: Move this check into core instead
 sed -i "s/os.path.dirname(__file__), 'static', 'wagtailadmin', 'css', 'normalize.css'/os.path.dirname(os.path.dirname(__file__)), 'static', 'wagtailadmin', 'css', 'normalize.css'/g" wagtail/admin/checks.py
 find ./wagtail/static_src -name '*.scss' -exec sed -i "s/\/..\/client\//\/client\//g" {} \;
@@ -145,10 +153,23 @@ popd
 git add .
 git commit -m "Move admin locale files into core"
 
-git apply --reject --whitespace=fix ../patches/call-admin-signal-handlers-and-hooks-from-core.patch
+mkdir wagtail/wagtail_hooks
+poetry run roper rename-module --module wagtail/wagtail_hooks.py --to-name core --do
+poetry run roper move-module --source wagtail/core.py --target wagtail/wagtail_hooks --do
+poetry run roper rename-module --module wagtail/admin/wagtail_hooks.py --to-name admin --do
+poetry run roper move-module --source wagtail/admin/admin.py --target wagtail/wagtail_hooks --do
+cat << EOF > wagtail/wagtail_hooks/__init__.py
+"""
+Temporarily made this into a folder to make it easier to automate the merging
+Will concatenate these files later
+"""
+
+from .core import *  # noqa
+from .admin import *  # noqa
+EOF
 git add .
 poetry run isort -rc wagtail
-git commit -m "Call admin signal handlers and hooks from core"
+git commit -m "Move admin wagtail_hooks.py into core"
 
 git apply --reject --whitespace=fix ../patches/remove-admin-from-installed-apps.patch
 git add .
@@ -383,11 +404,23 @@ poetry run roper rename-module --module wagtail/users/utils.py --to-name usersut
 poetry run roper move-module --source wagtail/users/usersutils.py --target wagtail/admin --do
 
 find . -name '*.py' -exec sed -i 's/wagtail.users.views.groups/wagtail.admin.views.groups/g' {} \;
+find . -name '*.py' -exec sed -i 's/wagtail.users.tests/wagtail.admin.tests.users/g' {} \;
+
+git apply --reject --whitespace=fix ../patches/update-custom-users-models-docs.patch
+git apply --reject --whitespace=fix ../patches/update-customising-group-views-docs.patch
+
+rm wagtail/users/views/__init__.py
 
 poetry run isort -rc wagtail
 
 git add .
-git commit -m "Move users views into admin"
+git commit -m "Move users views/forms/widgets/utils/tests into admin"
+
+poetry run roper move-module --source wagtail/users/templatetags/wagtailusers_tags.py --target wagtail/templatetags --do
+rm wagtail/users/templatetags/__init__.py
+poetry run isort -rc wagtail
+git add .
+git commit -m "Move users templatetags into core"
 
 mv wagtail/users/templates/wagtailusers wagtail/templates/wagtailusers
 poetry run isort -rc wagtail
@@ -409,6 +442,19 @@ popd
 git add .
 git commit -m "Move users locale files into core"
 
+poetry run roper rename-module --module wagtail/users/wagtail_hooks.py --to-name users --do
+poetry run roper move-module --source wagtail/users/users.py --target wagtail/wagtail_hooks --do
+echo "from .users import *  # noqa" >> wagtail/wagtail_hooks/__init__.py
+git apply --reject --whitespace=fix ../patches/allow-group_viewset-to-be-specified-on-WagtailAppCon.patch
+poetry run isort -rc wagtail
+git add .
+git commit -m "Move users wagtail_hooks into core"
+
+git apply --reject --whitespace=fix ../patches/wagtail.users-no-longer-needs-to-be-installed.patch
+poetry run isort -rc wagtail
+git add .
+git commit -m "'wagtail.users' no longer needs to be added to INSTALLED_APPS"
+
 
 poetry run roper rename-module --module wagtail/locales/views.py --to-name locales --do
 poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/admin/views --do
@@ -417,6 +463,8 @@ poetry run roper rename-module --module wagtail/locales/forms.py --to-name local
 poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/admin/forms --do
 poetry run roper rename-module --module wagtail/locales/tests.py --to-name locales --do
 poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/admin/tests --do
+poetry run roper rename-module --module wagtail/locales/utils.py --to-name locales --do
+poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/admin --do
 git add .
 git commit -m "Move locales views into admin"
 
@@ -432,6 +480,18 @@ poetry run bash -C "./rebuild-translation-sources.sh"
 popd
 git add .
 git commit -m "Move locales locale files into core"
+
+poetry run roper rename-module --module wagtail/locales/wagtail_hooks.py --to-name locales --do
+poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/wagtail_hooks --do
+echo "from .locales import *  # noqa" >> wagtail/wagtail_hooks/__init__.py
+poetry run isort -rc wagtail
+git add .
+git commit -m "Move locales wagtail_hooks into core"
+
+git apply --reject --whitespace=fix ../patches/wagtail.locales-no-longer-needs-to-be-installed.patch
+poetry run isort -rc wagtail
+git add .
+git commit -m "'wagtail.locales' no longer needs to be added to INSTALLED_APPS"
 
 
 poetry run roper rename-module --module wagtail/sites/views.py --to-name sites --do
@@ -456,3 +516,15 @@ poetry run bash -C "./rebuild-translation-sources.sh"
 popd
 git add .
 git commit -m "Move sites locale files into core"
+
+poetry run roper rename-module --module wagtail/sites/wagtail_hooks.py --to-name sites --do
+poetry run roper move-module --source wagtail/sites/sites.py --target wagtail/wagtail_hooks --do
+echo "from .sites import *  # noqa" >> wagtail/wagtail_hooks/__init__.py
+poetry run isort -rc wagtail
+git add .
+git commit -m "Move sites wagtail_hooks into core"
+
+git apply --reject --whitespace=fix ../patches/wagtail.sites-no-longer-needs-to-be-installed.patch
+poetry run isort -rc wagtail
+git add .
+git commit -m "'wagtail.sites' no longer needs to be added to INSTALLED_APPS"
