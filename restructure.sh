@@ -598,6 +598,10 @@ poetry run roper rename-module --module wagtail/contrib/routable_page/models.py 
 poetry run roper move-module --source wagtail/contrib/routable_page/routable_page.py --target wagtail/models --do
 poetry run roper rename-module --module wagtail/contrib/routable_page/tests.py --to-name test_routable_page --do
 poetry run roper move-module --source wagtail/contrib/routable_page/test_routable_page.py --target wagtail/tests --do
+cp ../dummy_modules/contrib/routable_page/models.py wagtail/contrib/routable_page/models.py
+find . -name '*.py' -exec sed -i 's/wagtail.contrib.routable_page.models/wagtail.models.routable_page/g' {} \;
+find . -name '*.rst' -exec sed -i 's/wagtail.contrib.routable_page.models/wagtail.models.routable_page/g' {} \;
+find . -name '*.md' -exec sed -i 's/wagtail.contrib.routable_page.models/wagtail.models.routable_page/g' {} \;
 poetry run isort -rc wagtail
 git add .
 git checkout -- docs/releases
