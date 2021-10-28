@@ -1,7 +1,7 @@
-From 6cad56740c243e1ac35327d5707d22357fa99bfa Mon Sep 17 00:00:00 2001
+From da19df7d4da28e884d42460885336a5a7f79dd24 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
-Date: Tue, 26 Oct 2021 12:38:45 +0100
-Subject: [PATCH] Allow group_viewset to be specified on WagtailAppConfig
+Date: Thu, 28 Oct 2021 14:34:24 +0100
+Subject: [PATCH] allow group_viewset to be specified on WAgtailAppConfig
 
 ---
  wagtail/apps.py                | 1 +
@@ -9,17 +9,17 @@ Subject: [PATCH] Allow group_viewset to be specified on WagtailAppConfig
  2 files changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/wagtail/apps.py b/wagtail/apps.py
-index d5084143e..fe2006586 100644
+index 1f182f852..a400b3742 100644
 --- a/wagtail/apps.py
 +++ b/wagtail/apps.py
-@@ -7,6 +7,7 @@ class WagtailCoreAppConfig(AppConfig):
+@@ -7,6 +7,7 @@ class WagtailAppConfig(AppConfig):
      label = 'wagtailcore'
      verbose_name = _("Wagtail core")
      default_auto_field = 'django.db.models.AutoField'
 +    group_viewset = 'wagtail.admin.views.groups.GroupViewSet'
  
      def ready(self):
-         from wagtail.signal_handlers import register_signal_handlers
+         from wagtail.admin.signal_handlers import \
 diff --git a/wagtail/wagtail_hooks/users.py b/wagtail/wagtail_hooks/users.py
 index 1d45608c9..d77b0a224 100644
 --- a/wagtail/wagtail_hooks/users.py
