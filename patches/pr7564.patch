@@ -1,4 +1,4 @@
-From 9c5feacb293fd2985ed18369bdf590d0fcd454a2 Mon Sep 17 00:00:00 2001
+From 752ecd533d183a93df8d38305a6e12295f13db43 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Fri, 1 Oct 2021 15:31:09 +0100
 Subject: [PATCH 1/4] Create a UserProfile model in wagtailcore
@@ -56,7 +56,7 @@ index 00000000000..f4156331687
 +        ),
 +    ]
 diff --git a/wagtail/core/models/__init__.py b/wagtail/core/models/__init__.py
-index f441d436701..d465132fe17 100644
+index 382dc62ec31..4c3ea7a41b5 100644
 --- a/wagtail/core/models/__init__.py
 +++ b/wagtail/core/models/__init__.py
 @@ -71,6 +71,7 @@
@@ -197,7 +197,7 @@ index 4e4929834c6..fa4ad26310c 100644
  
      submitted_notifications = models.BooleanField(
 
-From c5c94bb2401752506e5d92334d59fb5af9b842ff Mon Sep 17 00:00:00 2001
+From 0a739b98b38f8694333f680631b39056c0cec1db Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Fri, 1 Oct 2021 15:31:30 +0100
 Subject: [PATCH 2/4] Add a migration to migrate from wagtailusers
@@ -271,7 +271,7 @@ index 230e97fc78c..5ce891928a9 100644
          migrations.AlterField(
              model_name='userprofile',
 
-From 52a9c8c0880f93438ff4db03df4c8855410c3d2a Mon Sep 17 00:00:00 2001
+From 4242defdbfb2154ef90f994f41f9d13b7fe96bab Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Fri, 1 Oct 2021 15:36:58 +0100
 Subject: [PATCH 3/4] Switch to new UserProfile model
@@ -289,7 +289,7 @@ Subject: [PATCH 3/4] Switch to new UserProfile model
  wagtail/admin/tests/test_workflows.py               | 4 ++--
  wagtail/admin/views/account.py                      | 3 +--
  wagtail/users/migrations/0008_userprofile_avatar.py | 4 ++--
- wagtail/users/tests.py                              | 4 ++--
+ wagtail/users/tests/test_admin_views.py             | 4 ++--
  13 files changed, 18 insertions(+), 25 deletions(-)
 
 diff --git a/docs/extending/custom_account_settings.rst b/docs/extending/custom_account_settings.rst
@@ -503,10 +503,10 @@ index 683765623a7..613300ccf05 100644
 +            field=models.ImageField(blank=True, upload_to=wagtail.core.models.user_profile.upload_avatar_to, verbose_name='profile picture'),
          ),
      ]
-diff --git a/wagtail/users/tests.py b/wagtail/users/tests.py
+diff --git a/wagtail/users/tests/test_admin_views.py b/wagtail/users/tests/test_admin_views.py
 index af74575fc91..843b11de110 100644
---- a/wagtail/users/tests.py
-+++ b/wagtail/users/tests.py
+--- a/wagtail/users/tests/test_admin_views.py
++++ b/wagtail/users/tests/test_admin_views.py
 @@ -15,10 +15,10 @@
  from wagtail.admin.admin_url_finder import AdminURLFinder
  from wagtail.core import hooks
@@ -521,7 +521,7 @@ index af74575fc91..843b11de110 100644
  from wagtail.users.views.users import get_user_creation_form, get_user_edit_form
  from wagtail.users.wagtail_hooks import get_group_viewset_cls
 
-From bc57f475a160b732e0ac0c5824c2229f575c6d83 Mon Sep 17 00:00:00 2001
+From 9ff631409bb7c46da5cb71d5946ad5cb3e91ec67 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
 Date: Fri, 1 Oct 2021 15:35:38 +0100
 Subject: [PATCH 4/4] Delete wagtailusers UserProfile model

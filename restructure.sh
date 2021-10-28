@@ -6,7 +6,7 @@ git clone git@github.com:wagtail/wagtail.git
 
 cd wagtail
 
-git checkout b3366749d9b068ea1bc4ae01495e9d1b77ae2333 -b restructure
+git checkout 24b99a5ebc4b25986b89bbbfa0de6e93acfe6dcc -b restructure
 
 echo "/.ropeproject" >> .gitignore
 
@@ -445,8 +445,8 @@ poetry run roper move-module --source wagtail/users/users.py --target wagtail/ad
 poetry run roper rename-module --module wagtail/users/widgets.py --to-name users --do
 poetry run roper move-module --source wagtail/users/users.py --target wagtail/admin/widgets --do
 
-poetry run roper rename-module --module wagtail/users/tests.py --to-name test_users --do
-poetry run roper move-module --source wagtail/users/test_users.py --target wagtail/admin/tests --do
+poetry run roper rename-module --module wagtail/users/tests --to-name test_users --do
+poetry run roper move-module --source wagtail/users/test_users --target wagtail/admin/tests --do
 
 poetry run roper rename-module --module wagtail/users/utils.py --to-name usersutils --do
 poetry run roper move-module --source wagtail/users/usersutils.py --target wagtail/admin --do
