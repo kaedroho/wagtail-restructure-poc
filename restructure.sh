@@ -520,6 +520,7 @@ poetry run roper rename-module --module wagtail/locales/tests.py --to-name test_
 poetry run roper move-module --source wagtail/locales/test_locales.py --target wagtail/admin/tests --do
 poetry run roper rename-module --module wagtail/locales/utils.py --to-name locales --do
 poetry run roper move-module --source wagtail/locales/locales.py --target wagtail/admin --do
+poetry run isort -rc wagtail
 git add .
 git checkout -- docs/releases
 git commit -m "Move locales views into admin"
