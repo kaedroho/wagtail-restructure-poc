@@ -96,7 +96,6 @@ git commit -m "Add dummy modules to maintain wagtail.core imports"
 
 
 # Merge admin into core
-# TODO: Merge signal handlers
 
 poetry run roper move-module --source wagtail/admin/edit_handlers.py --target wagtail --do
 find . -name '*.py' -exec sed -i 's/wagtail.admin.edit_handlers/wagtail.edit_handlers/g' {} \;
