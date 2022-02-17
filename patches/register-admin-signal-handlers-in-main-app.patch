@@ -1,35 +1,36 @@
-From 96d7da24067e372de22ccc6bc85a1ca0f5caebc3 Mon Sep 17 00:00:00 2001
+From 53e2963161e82ea87b83e5cf7549f912ac149bc3 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
-Date: Thu, 28 Oct 2021 14:18:21 +0100
+Date: Thu, 17 Feb 2022 16:23:47 +0000
 Subject: [PATCH] Register admin signal handlers in main app
 
 ---
- wagtail/admin/apps.py | 4 ----
- wagtail/apps.py       | 3 +++
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ wagtail/admin/apps.py | 5 -----
+ wagtail/apps.py       | 2 ++
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
 diff --git a/wagtail/admin/apps.py b/wagtail/admin/apps.py
-index e89deaa60..43c05ffb9 100644
+index 598a4b025..418cde161 100644
 --- a/wagtail/admin/apps.py
 +++ b/wagtail/admin/apps.py
-@@ -9,7 +9,3 @@ class WagtailAdminAppConfig(AppConfig):
-     label = 'wagtailadmin'
+@@ -9,8 +9,3 @@ class WagtailAdminAppConfig(AppConfig):
+     label = "wagtailadmin"
      verbose_name = _("Wagtail admin")
-     default_auto_field = 'django.db.models.AutoField'
+     default_auto_field = "django.db.models.AutoField"
 -
 -    def ready(self):
 -        from wagtail.admin.signal_handlers import register_signal_handlers
+-
 -        register_signal_handlers()
 diff --git a/wagtail/apps.py b/wagtail/apps.py
-index 1cd6454c8..83b232434 100644
+index c1ca013a2..a277010a8 100644
 --- a/wagtail/apps.py
 +++ b/wagtail/apps.py
-@@ -10,6 +10,9 @@ class WagtailAppConfig(AppConfig):
+@@ -10,7 +10,9 @@ class WagtailAppConfig(AppConfig):
  
      def ready(self):
          from wagtail.signal_handlers import register_signal_handlers
 +        from wagtail.admin.signal_handlers import register_signal_handlers as register_admin_signal_handlers
-+
+ 
          register_signal_handlers()
 +        register_admin_signal_handlers()
  

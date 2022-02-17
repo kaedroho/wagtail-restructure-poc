@@ -1,26 +1,27 @@
-From 23e9451a74bf0931ba9e2d0f4549b5bf41f2fe21 Mon Sep 17 00:00:00 2001
+From 0a73fa0c4dc0e91c905dfd2a11cfc8cabc2978ab Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
-Date: Thu, 28 Oct 2021 19:21:52 +0100
-Subject: [PATCH] move admin static to top level app
+Date: Thu, 17 Feb 2022 16:35:09 +0000
+Subject: [PATCH] Move admin static to top level app
 
 ---
- client/webpack.config.js | 3 +++
- 1 file changed, 3 insertions(+)
+ client/webpack.config.js | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/client/webpack.config.js b/client/webpack.config.js
-index 19fe0fe0c..e25d1d575 100644
+index 18a9bc943..7b23b2c74 100644
 --- a/client/webpack.config.js
 +++ b/client/webpack.config.js
-@@ -11,6 +11,9 @@ const getOutputPath = (app, filename) => {
-     appLabel = 'table_block';
-   } else if (app === 'contrib/typed_table_block') {
-     appLabel = 'typed_table_block';
-+  } else if (app === 'admin') {
-+    // Wagtail admin static is in the top-level app
-+    app = '';
-   }
+@@ -12,6 +12,10 @@ const getOutputPath = (app, folder, filename) => {
+     'contrib/modeladmin': 'wagtailmodeladmin',
+   };
  
-   return path.join('wagtail', app, 'static', appLabel, 'js', filename);
++  if (app === 'admin') {
++    return path.join('wagtail', 'static', 'wagtailadmin', folder, filename);
++  }
++
+   const appLabel = exceptions[app] || `wagtail${app}`;
+ 
+   return path.join('wagtail', app, 'static', appLabel, folder, filename);
 -- 
 2.30.2
 

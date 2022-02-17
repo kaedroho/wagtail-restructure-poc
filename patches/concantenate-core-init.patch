@@ -1,25 +1,36 @@
-From dadc26bc044fe0f84fdad18c7afe77c50c4f1c6e Mon Sep 17 00:00:00 2001
+From 62b4225d341707d34fb69f8f9008f67bad0cbc81 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
-Date: Fri, 15 Oct 2021 12:09:26 +0100
+Date: Thu, 17 Feb 2022 16:05:47 +0000
 Subject: [PATCH] Concatenate core init
 
 ---
- wagtail/__init__.py | 2 --
- 1 file changed, 2 deletions(-)
+ wagtail/__init__.py | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/wagtail/__init__.py b/wagtail/__init__.py
-index 20dc34a50..a8cdcb8d9 100644
+index e073282a9..307fcdb0e 100644
 --- a/wagtail/__init__.py
 +++ b/wagtail/__init__.py
-@@ -13,8 +13,6 @@ __version__ = get_version(VERSION)
+@@ -2,6 +2,8 @@
+ # also update scripts/nightly/get_version.py as well as that needs to generate a new
+ # version of this file from a template for nightly builds
+ 
++import django
++
+ from wagtail.utils.version import get_semver_version, get_version
+ 
+ # major.minor.patch.release.number
+@@ -12,10 +14,7 @@ __version__ = get_version(VERSION)
  
  # Required for npm package for frontend
  __semver__ = get_semver_version(VERSION)
+-import django
+ 
 -# Imported for historical reasons
 -from wagtail import __semver__, __version__  # noqa
  
- 
- default_app_config = 'wagtail.core.apps.WagtailCoreAppConfig'
+ if django.VERSION >= (3, 2):
+     # The declaration is only needed for older Django versions
 -- 
-2.27.0
+2.30.2
 

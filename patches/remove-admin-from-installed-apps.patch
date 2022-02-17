@@ -1,15 +1,18 @@
-From a9a8b2bd6c84d2c136e98111b9e4f0f9a4c0e667 Mon Sep 17 00:00:00 2001
+From 7b54ccb46ac91ed7d88839bd90fe4ba826473ee2 Mon Sep 17 00:00:00 2001
 From: Karl Hobley <karl@torchbox.com>
-Date: Fri, 15 Oct 2021 16:35:18 +0100
-Subject: [PATCH] No longer necessary to add wagtail.admin to INSTALLED_APPS
+Date: Thu, 17 Feb 2022 16:45:41 +0000
+Subject: [PATCH] Remove admin from installed apps
 
 ---
  docs/advanced_topics/add_to_django_project.rst         | 5 -----
  docs/advanced_topics/customisation/admin_templates.rst | 3 +--
  docs/getting_started/integrating_into_django.md        | 1 -
+ wagtail/admin/tests/test_buttons_hooks.py              | 2 +-
  wagtail/project_template/project_name/settings/base.py | 1 -
  wagtail/test/settings.py                               | 1 -
- 5 files changed, 1 insertion(+), 10 deletions(-)
+ wagtail/wagtail_hooks/__init__.py                      | 2 +-
+ wagtail/wagtail_hooks/core.py                          | 5 +++--
+ 8 files changed, 6 insertions(+), 14 deletions(-)
 
 diff --git a/docs/advanced_topics/add_to_django_project.rst b/docs/advanced_topics/add_to_django_project.rst
 index fe7d014e7..cff2ec448 100644
@@ -21,49 +24,49 @@ index fe7d014e7..cff2ec448 100644
      'wagtail.search',
 -    'wagtail.admin',
      'wagtail',
- 
+
      'taggit',
 @@ -86,9 +85,6 @@ Wagtail Apps
  ``wagtail``
    The core functionality of Wagtail, such as the ``Page`` class, the Wagtail tree, and model fields.
- 
+
 -``wagtail.admin``
 -  The administration interface for Wagtail, including page edit handlers.
 -
  ``wagtail.documents``
    The Wagtail document content type.
- 
+
 @@ -200,7 +196,6 @@ These two files should reside in your project directory (``myproject/myproject/`
        'wagtail.documents',
        'wagtail.images',
        'wagtail.search',
 -      'wagtail.admin',
        'wagtail',
- 
+
        'taggit',
 diff --git a/docs/advanced_topics/customisation/admin_templates.rst b/docs/advanced_topics/customisation/admin_templates.rst
 index b38c0e242..07b4abc49 100644
 --- a/docs/advanced_topics/customisation/admin_templates.rst
 +++ b/docs/advanced_topics/customisation/admin_templates.rst
 @@ -4,7 +4,7 @@ Customising admin templates
- 
+
  In your projects with Wagtail, you may wish to replace elements such as the Wagtail logo within the admin interface with your own branding. This can be done through Django's template inheritance mechanism.
- 
+
 -You need to create a ``templates/wagtailadmin/`` folder within one of your apps - this may be an existing one, or a new one created for this purpose, for example, ``dashboard``. This app must be registered in ``INSTALLED_APPS`` before ``wagtail.admin``:
 +You need to create a ``templates/wagtailadmin/`` folder within one of your apps - this may be an existing one, or a new one created for this purpose, for example, ``dashboard``. This app must be registered in ``INSTALLED_APPS`` before ``wagtail``:
- 
+
  .. code-block:: python
- 
+
 @@ -14,7 +14,6 @@ You need to create a ``templates/wagtailadmin/`` folder within one of your apps
          'dashboard',
- 
+
          'wagtail',
 -        'wagtail.admin',
- 
+
          # ...
      )
 diff --git a/docs/getting_started/integrating_into_django.md b/docs/getting_started/integrating_into_django.md
-index de09a2dca..c8e123521 100644
+index fb9d0f640..d49eaa0ce 100644
 --- a/docs/getting_started/integrating_into_django.md
 +++ b/docs/getting_started/integrating_into_django.md
 @@ -27,7 +27,6 @@ In your settings file, add the following apps to `INSTALLED_APPS`:
@@ -72,32 +75,83 @@ index de09a2dca..c8e123521 100644
  'wagtail.search',
 -'wagtail.admin',
  'wagtail',
- 
+
  'modelcluster',
+diff --git a/wagtail/admin/tests/test_buttons_hooks.py b/wagtail/admin/tests/test_buttons_hooks.py
+index 0e143d472..716203a84 100644
+--- a/wagtail/admin/tests/test_buttons_hooks.py
++++ b/wagtail/admin/tests/test_buttons_hooks.py
+@@ -4,9 +4,9 @@ from django.utils.http import urlencode
+
+ from wagtail import hooks
+ from wagtail.admin import widgets as wagtailadmin_widgets
+-from wagtail.wagtail_hooks.admin import page_listing_more_buttons
+ from wagtail.models import Page
+ from wagtail.test.utils import WagtailTestUtils
++from wagtail.wagtail_hooks.admin import page_listing_more_buttons
+
+
+ class PagePerms:
 diff --git a/wagtail/project_template/project_name/settings/base.py b/wagtail/project_template/project_name/settings/base.py
-index 348d4f709..2b74999ea 100644
+index af8c7bfb0..dafe512a0 100644
 --- a/wagtail/project_template/project_name/settings/base.py
 +++ b/wagtail/project_template/project_name/settings/base.py
-@@ -36,7 +36,6 @@ INSTALLED_APPS = [
-     'wagtail.documents',
-     'wagtail.images',
-     'wagtail.search',
--    'wagtail.admin',
-     'wagtail',
- 
-     'modelcluster',
+@@ -35,7 +35,6 @@ INSTALLED_APPS = [
+     "wagtail.documents",
+     "wagtail.images",
+     "wagtail.search",
+-    "wagtail.admin",
+     "wagtail",
+     "modelcluster",
+     "taggit",
 diff --git a/wagtail/test/settings.py b/wagtail/test/settings.py
-index 819a37b85..a68695c7f 100644
+index 4dcfe5cc4..589394a34 100644
 --- a/wagtail/test/settings.py
 +++ b/wagtail/test/settings.py
-@@ -139,7 +139,6 @@ INSTALLED_APPS = [
-     'wagtail.users',
-     'wagtail.snippets',
-     'wagtail.documents',
--    'wagtail.admin',
-     'wagtail.api.v2',
-     'wagtail',
- 
--- 
-2.27.0
+@@ -136,7 +136,6 @@ INSTALLED_APPS = [
+     "wagtail.users",
+     "wagtail.snippets",
+     "wagtail.documents",
+-    "wagtail.admin",
+     "wagtail.api.v2",
+     "wagtail",
+     "taggit",
+diff --git a/wagtail/wagtail_hooks/__init__.py b/wagtail/wagtail_hooks/__init__.py
+index 91768ed17..d1428779b 100644
+--- a/wagtail/wagtail_hooks/__init__.py
++++ b/wagtail/wagtail_hooks/__init__.py
+@@ -3,6 +3,6 @@ Temporarily made this into a folder to make it easier to automate the merging
+ Will concatenate these files later
+ """
+
+-from .core import *  # noqa
+ from .admin import *  # noqa
++from .core import *  # noqa
+ from .utils import *  # noqa
+diff --git a/wagtail/wagtail_hooks/core.py b/wagtail/wagtail_hooks/core.py
+index 970da2967..91a6c64f9 100644
+--- a/wagtail/wagtail_hooks/core.py
++++ b/wagtail/wagtail_hooks/core.py
+@@ -1,16 +1,17 @@
++import utils
+ from django.conf import settings
+ from django.contrib.auth.models import Permission
+ from django.db import models
+ from django.urls import reverse
+ from django.utils.text import capfirst
+-from django.utils.translation import gettext_lazy as _, ngettext
++from django.utils.translation import gettext_lazy as _
++from django.utils.translation import ngettext
+
+ from wagtail import hooks
+ from wagtail.coreutils import get_content_languages
+ from wagtail.log_actions import LogFormatter
+ from wagtail.models import ModelLogEntry, Page, PageLogEntry, PageViewRestriction
+ from wagtail.rich_text.pages import PageLinkHandler
+-import utils
+
+
+ @hooks.register("before_serve_page")
+--
+2.30.2
 
