@@ -1,72 +1,91 @@
-From 41395dbc13d423be5a0fc431b777425c51a3d6a2 Mon Sep 17 00:00:00 2001
-From: Karl Hobley <karl@torchbox.com>
-Date: Fri, 22 Oct 2021 14:10:38 +0100
+From 2e8708deeb8debc61a7a6929519bd0a22ef14975 Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@kaed.uk>
+Date: Mon, 21 Mar 2022 14:20:16 +0000
 Subject: [PATCH] Fixup pages models
 
 ---
- wagtail/models/pages.py | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ wagtail/models/pages.py | 45 ++++++++++-------------------------------
+ 1 file changed, 11 insertions(+), 34 deletions(-)
 
 diff --git a/wagtail/models/pages.py b/wagtail/models/pages.py
-index b0ea73260..5f80aebcd 100644
+index 8af2566918..37ae109bcd 100644
 --- a/wagtail/models/pages.py
 +++ b/wagtail/models/pages.py
-@@ -54,18 +54,10 @@ from wagtail.signals import (
+@@ -62,42 +62,13 @@ from wagtail.signals import page_published, page_slug_changed, pre_validate_dele
  from wagtail.treebeard import TreebeardPathFixMixin
  from wagtail.url_routing import RouteResult
  
--from .audit_log import BaseLogEntry, BaseLogEntryManager, LogEntryQuerySet, ModelLogEntry  # noqa
+-from .audit_log import (  # noqa
+-    BaseLogEntry,
+-    BaseLogEntryManager,
+-    LogEntryQuerySet,
+-    ModelLogEntry,
+-)
 -from .collections import (  # noqa
--    BaseCollectionManager, Collection, CollectionManager, CollectionMember,
--    CollectionViewRestriction, GroupCollectionPermission, GroupCollectionPermissionManager,
--    get_root_collection_id)
--from .commenting import COMMENTS_RELATION_NAME, Comment, CommentReply, PageSubscription  # noqa
+-    BaseCollectionManager,
+-    Collection,
+-    CollectionManager,
+-    CollectionMember,
+-    CollectionViewRestriction,
+-    GroupCollectionPermission,
+-    GroupCollectionPermissionManager,
+-    get_root_collection_id,
+-)
+-from .commenting import (  # noqa
+-    COMMENTS_RELATION_NAME,
+-    Comment,
+-    CommentReply,
+-    PageSubscription,
+-)
 -from .copying import _copy, _copy_m2m_relations, _extract_field_data  # noqa
 -from .i18n import (  # noqa
--    BootstrapTranslatableMixin, BootstrapTranslatableModel, Locale, LocaleManager,
--    TranslatableMixin, bootstrap_translatable_model, get_translatable_models)
+-    BootstrapTranslatableMixin,
+-    BootstrapTranslatableModel,
+-    Locale,
+-    LocaleManager,
+-    TranslatableMixin,
+-    bootstrap_translatable_model,
+-    get_translatable_models,
+-)
 -from .sites import Site, SiteManager, SiteRootPath  # noqa
 -from .user_profile import UserProfile  # noqa
 +from .commenting import COMMENTS_RELATION_NAME, Comment
-+from .copying import _copy, _copy_m2m_relations
++from .copying import _copy_m2m_relations
 +from .i18n import Locale, TranslatableMixin
 +from .sites import Site
  from .view_restrictions import BaseViewRestriction
  
++
+ logger = logging.getLogger("wagtail")
  
-@@ -2335,6 +2327,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+ PAGE_TEMPLATE_VAR = "page"
+@@ -2042,6 +2013,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
      @property
      def workflow_in_progress(self):
          """Returns True if a workflow is in progress on the current page, otherwise False"""
 +        from .workflows import WorkflowState
 +
-         if not getattr(settings, 'WAGTAIL_WORKFLOW_ENABLED', True):
+         if not getattr(settings, "WAGTAIL_WORKFLOW_ENABLED", True):
              return False
  
-@@ -2351,6 +2345,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+@@ -2060,6 +2033,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
      @property
      def current_workflow_state(self):
          """Returns the in progress or needs changes workflow state on this page, if it exists"""
 +        from .workflows import WorkflowState
 +
-         if not getattr(settings, 'WAGTAIL_WORKFLOW_ENABLED', True):
+         if not getattr(settings, "WAGTAIL_WORKFLOW_ENABLED", True):
              return None
  
-@@ -2370,6 +2366,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
+@@ -2083,6 +2058,8 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
      @property
      def current_workflow_task_state(self):
          """Returns (specific class of) the current task state of the workflow on this page, if it exists"""
 +        from .workflows import WorkflowState
 +
          current_workflow_state = self.current_workflow_state
-         if current_workflow_state and current_workflow_state.status == WorkflowState.STATUS_IN_PROGRESS and current_workflow_state.current_task_state:
-             return current_workflow_state.current_task_state.specific
-@@ -3185,5 +3183,3 @@ class WorkflowPage(models.Model):
-     class Meta:
-         verbose_name = _('workflow page')
-         verbose_name_plural = _('workflow pages')
--
--
+         if (
+             current_workflow_state
 -- 
-2.30.2
+2.35.1
 

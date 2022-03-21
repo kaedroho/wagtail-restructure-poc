@@ -1,15 +1,15 @@
-From a759ad54eaa82ead52591fbfd2af7b8afd8ba835 Mon Sep 17 00:00:00 2001
-From: Karl Hobley <karl@torchbox.com>
-Date: Fri, 22 Oct 2021 12:49:09 +0100
-Subject: [PATCH] Workflow models: Fix up imports
+From d858063c76ddb0ea0c436c2a7839024670829527 Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@kaed.uk>
+Date: Mon, 21 Mar 2022 13:43:58 +0000
+Subject: [PATCH] Workflow models fixup imports
 
 ---
  wagtail/core/models/__init__.py |  9 +++++++++
- wagtail/models/__init__.py      | 16 +++++++++++-----
- 2 files changed, 20 insertions(+), 5 deletions(-)
+ wagtail/models/__init__.py      | 15 +++++++++++----
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
 diff --git a/wagtail/core/models/__init__.py b/wagtail/core/models/__init__.py
-index 6af37a441..6e6d66229 100644
+index 38f853bc71..87384d3e38 100644
 --- a/wagtail/core/models/__init__.py
 +++ b/wagtail/core/models/__init__.py
 @@ -1,3 +1,12 @@
@@ -22,19 +22,19 @@ index 6af37a441..6e6d66229 100644
 +    get_page_models, get_streamfield_names, logger, reassign_root_page_locale_on_delete)  # noqa
 +from wagtail.models.workflows import GroupApprovalTask, Workflow, WorkflowManager, WorkflowPage, WorkflowState, WorkflowStateManager, WorkflowTask, Task, TaskManager, TaskState, TaskStateManager  # noqa
 +
- from .audit_log import BaseLogEntry, BaseLogEntryManager, LogEntryQuerySet, ModelLogEntry  # noqa
- from .collections import (  # noqa
-     BaseCollectionManager, Collection, CollectionManager, CollectionMember,
+ from .audit_log import (  # noqa
+     BaseLogEntry,
+     BaseLogEntryManager,
 diff --git a/wagtail/models/__init__.py b/wagtail/models/__init__.py
-index 5feffbdc1..ee53373c6 100644
+index 76681f934c..a24fceecf0 100644
 --- a/wagtail/models/__init__.py
 +++ b/wagtail/models/__init__.py
-@@ -54,14 +54,20 @@ from wagtail.signals import page_published, page_unpublished, post_page_move, pr
+@@ -63,10 +63,17 @@ from wagtail.signals import page_published, page_slug_changed, pre_validate_dele
  from wagtail.treebeard import TreebeardPathFixMixin
  from wagtail.url_routing import RouteResult
  
 -from .audit_log import BaseLogEntry, BaseLogEntryManager, LogEntryQuerySet
--from .copying import _copy, _copy_m2m_relations
+-from .copying import _copy_m2m_relations
 -from .i18n import Locale, TranslatableMixin
 -from .sites import Site
 +from .audit_log import BaseLogEntry, BaseLogEntryManager, LogEntryQuerySet, ModelLogEntry  # noqa
@@ -42,7 +42,7 @@ index 5feffbdc1..ee53373c6 100644
 +    BaseCollectionManager, Collection, CollectionManager, CollectionMember,
 +    CollectionViewRestriction, GroupCollectionPermission, GroupCollectionPermissionManager,
 +    get_root_collection_id)
-+from .copying import _copy, _copy_m2m_relations, _extract_field_data  # noqa
++from .copying import _copy_m2m_relations, _extract_field_data  # noqa
 +from .i18n import (  # noqa
 +    BootstrapTranslatableMixin, BootstrapTranslatableModel, Locale, LocaleManager,
 +    TranslatableMixin, bootstrap_translatable_model, get_translatable_models)
@@ -51,10 +51,6 @@ index 5feffbdc1..ee53373c6 100644
  from .view_restrictions import BaseViewRestriction
  
  
--
- logger = logging.getLogger('wagtail')
- 
- PAGE_TEMPLATE_VAR = 'page'
 -- 
-2.30.2
+2.35.1
 

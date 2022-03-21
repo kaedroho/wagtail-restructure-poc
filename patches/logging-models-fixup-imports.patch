@@ -1,21 +1,30 @@
-From c727d1b407a59f36330c96d8453a5c94f61fd6e9 Mon Sep 17 00:00:00 2001
-From: Karl Hobley <karl@torchbox.com>
-Date: Fri, 22 Oct 2021 12:56:05 +0100
-Subject: [PATCH] Logging models fixup imports
+From 2efa01a42ec5962cd11b720513232770f7219eac Mon Sep 17 00:00:00 2001
+From: Karl Hobley <karl@kaed.uk>
+Date: Mon, 21 Mar 2022 13:50:32 +0000
+Subject: [PATCH] Logging models: Fixup imports
 
 ---
- wagtail/core/models/__init__.py | 12 +++++++++---
- wagtail/models/__init__.py      | 14 +++++++++++---
- 2 files changed, 20 insertions(+), 6 deletions(-)
+ wagtail/core/models/__init__.py | 22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
 
 diff --git a/wagtail/core/models/__init__.py b/wagtail/core/models/__init__.py
-index d7e536727..93c311677 100644
+index aa16de4051..cbac6b85a3 100644
 --- a/wagtail/core/models/__init__.py
 +++ b/wagtail/core/models/__init__.py
-@@ -1,6 +1,12 @@
+@@ -1,16 +1,12 @@
 -from wagtail.models.workflows import (  # noqa
--    GroupApprovalTask, Task, TaskManager, TaskState, TaskStateManager, Workflow, WorkflowManager,
--    WorkflowPage, WorkflowState, WorkflowStateManager, WorkflowTask)
+-    GroupApprovalTask,
+-    Task,
+-    TaskManager,
+-    TaskState,
+-    TaskStateManager,
+-    Workflow,
+-    WorkflowManager,
+-    WorkflowPage,
+-    WorkflowState,
+-    WorkflowStateManager,
+-    WorkflowTask,
+-)
 +from wagtail.models import (
 +    COMMENTS_RELATION_NAME, PAGE_MODEL_CLASSES, PAGE_PERMISSION_TYPE_CHOICES, PAGE_PERMISSION_TYPES,
 +    PAGE_TEMPLATE_VAR, AbstractPage, BasePageManager, Comment, CommentReply,
@@ -26,33 +35,8 @@ index d7e536727..93c311677 100644
 +from wagtail.models.workflows import GroupApprovalTask, Workflow, WorkflowManager, WorkflowPage, WorkflowState, WorkflowStateManager, WorkflowTask, Task, TaskManager, TaskState, TaskStateManager  # noqa
 +from wagtail.models.logging import PageLogEntry, PageLogEntryManager, PageLogEntryQuerySet
  
- from .audit_log import BaseLogEntry, BaseLogEntryManager, LogEntryQuerySet, ModelLogEntry  # noqa
- from .collections import (  # noqa
-diff --git a/wagtail/models/__init__.py b/wagtail/models/__init__.py
-index 46e9e54db..e26874d7c 100644
---- a/wagtail/models/__init__.py
-+++ b/wagtail/models/__init__.py
-@@ -54,9 +54,17 @@ from wagtail.signals import (
- from wagtail.treebeard import TreebeardPathFixMixin
- from wagtail.url_routing import RouteResult
- 
--from .copying import _copy, _copy_m2m_relations
--from .i18n import Locale, TranslatableMixin
--from .sites import Site
-+from .audit_log import BaseLogEntry, BaseLogEntryManager, LogEntryQuerySet, ModelLogEntry  # noqa
-+from .collections import (  # noqa
-+    BaseCollectionManager, Collection, CollectionManager, CollectionMember,
-+    CollectionViewRestriction, GroupCollectionPermission, GroupCollectionPermissionManager,
-+    get_root_collection_id)
-+from .copying import _copy, _copy_m2m_relations, _extract_field_data  # noqa
-+from .i18n import (  # noqa
-+    BootstrapTranslatableMixin, BootstrapTranslatableModel, Locale, LocaleManager,
-+    TranslatableMixin, bootstrap_translatable_model, get_translatable_models)
-+from .sites import Site, SiteManager, SiteRootPath  # noqa
-+from .user_profile import UserProfile  # noqa
- from .view_restrictions import BaseViewRestriction
- 
- 
+ from .audit_log import (  # noqa
+     BaseLogEntry,
 -- 
-2.30.2
+2.35.1
 
