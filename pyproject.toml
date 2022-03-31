@@ -8,6 +8,7 @@ authors = ["Karl Hobley <karl@torchbox.com>"]
 python = "^3.9"
 roper = "^0.1.5"
 wagtail = {version = "2.15rc1", extras = ["testing"]}
+black = "^22.3.0"
 
 [tool.poetry.dev-dependencies]
 
